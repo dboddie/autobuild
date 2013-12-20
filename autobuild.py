@@ -46,8 +46,8 @@ class Config:
 
     def __init__(self):
     
-        this_dir = os.path.split(os.path.abspath(__file__))[0]
-        self.path = os.path.join(this_dir, "active")
+        home_dir = os.getenv("HOME", os.path.split(os.path.abspath(__file__))[0])
+        self.path = os.path.join(home_dir, ".autobuild")
         self.load()
     
     def load(self):
@@ -76,18 +76,14 @@ class Config:
         except IOError:
             sys.stderr.write("Failed to update the list of active chroots.\n")
     
-    def make_line(self, *args):
-    
-        return " ".join(args)
-    
     def check(self, label, template, install_dir, distribution, pbuilderrc):
     
         if label in self.lines:
             return True
         
-        new_line = self.make_line(template, install_dir, distribution, pbuilderrc)
+        new_line = [template, install_dir, distribution, pbuilderrc]
         
-        return line in self.lines.values()
+        return new_line in self.lines.values()
     
     def check_label(self, label):
     
@@ -98,7 +94,7 @@ class Config:
     
     def add(self, label, template, install_dir, distribution, pbuilderrc):
     
-        new_line = self.make_line(template, install_dir, distribution, pbuilderrc)
+        new_line = [template, install_dir, distribution, pbuilderrc]
         self.lines[label] = new_line
     
     def remove(self, label):
@@ -117,8 +113,8 @@ if __name__ == "__main__":
         
             label, template, install_dir, distribution = sys.argv[2:]
             
-            install_distro_dir = os.path.join(install_dir, distribution)
-            pbuilderrc = os.path.join(install_distro_dir, "pbuilderrc")
+            install_label_dir = os.path.join(install_dir, label)
+            pbuilderrc = os.path.join(install_label_dir, "pbuilderrc")
             
             # Check to see if the chroot already exists.
             if config.check(label, template, install_dir, distribution, pbuilderrc):
@@ -128,11 +124,12 @@ if __name__ == "__main__":
             
             # Load and fill in a template with installation details.
             details = {"install dir": install_dir,
+                       "label": label,
                        "distribution": distribution}
             
             # Create the installation directory and a pbuilderrc file.
             mkdir(install_dir)
-            mkdir(install_distro_dir)
+            mkdir(install_label_dir)
             
             text = open(template, "r").read()
             text = text % details
@@ -141,9 +138,16 @@ if __name__ == "__main__":
             # Create the chroot by running pbuilder.
             if os.system("sudo pbuilder create --configfile " + commands.mkarg(pbuilderrc)) == 0:
             
+                # Reopen the configuration file. Really, we should lock the
+                # configuration file to prevent others from modifying the file
+                # after we have read it.
+                config = Config()
+                
                 # Add the chroot to a list in a file in the current directory.
-                config.add(template, install_dir, distribution, pbuilderrc)
+                config.add(label, template, install_dir, distribution, pbuilderrc)
                 config.save()
+            
+            sys.exit()
     
         elif command == "destroy" and len(sys.argv) == 3:
         
@@ -154,15 +158,17 @@ if __name__ == "__main__":
             
             template, install_dir, distribution, pbuilderrc = config.lines[label]
             
-            install_distro_dir = os.path.join(install_dir, distribution)
-            pbuilderrc = os.path.join(install_distro_dir, "pbuilderrc")
+            install_label_dir = os.path.join(install_dir, label)
+            pbuilderrc = os.path.join(install_label_dir, "pbuilderrc")
             
             # Remove the installation directory for this distribution.
-            if remove_dir(install_distro_dir):
+            if remove_dir(install_label_dir):
             
                 # Remove the chroot from a list in a file in the current directory.
-                config.remove(template, install_dir, distribution, pbuilderrc)
+                config.remove(label)
                 config.save()
+            
+            sys.exit()
     
         elif command == "info" and len(sys.argv) == 3:
         
@@ -178,6 +184,7 @@ if __name__ == "__main__":
             print "Installation:      ", install_dir
             print "Distribution:      ", distribution
             print "Configuration file:", pbuilderrc
+            sys.exit()
         
         elif command == "list" and len(sys.argv) == 2:
         
@@ -185,6 +192,7 @@ if __name__ == "__main__":
             labels.sort()
             
             print "\n".join(labels)
+            sys.exit()
         
         elif command == "build" and len(sys.argv) == 4:
         
@@ -203,7 +211,7 @@ if __name__ == "__main__":
                              commands.mkarg(pbuilderrc) + " " + \
                              commands.mkarg(name)) == 0:
                 
-                    products_dir = os.path.join(install_dir, distribution, "cache", "result")
+                    products_dir = os.path.join(install_dir, label, "cache", "result")
                     print "Build products can be found in", products_dir
             
             else:
@@ -218,19 +226,18 @@ if __name__ == "__main__":
                     if os.system("sudo pbuilder build --configfile " + \
                                  commands.mkarg(pbuilderrc) + " *.dsc") == 0:
                     
-                        products_dir = os.path.join(install_dir, distribution, "cache", "result")
+                        products_dir = os.path.join(install_dir, label, "cache", "result")
                         print "Build products can be found in", products_dir
                 
                 # Clean up.
                 remove_dir(directory)
                 os.chdir(old_directory)
+            
+            sys.exit()
     
-    else:
-        sys.stderr.write("Usage: %s create <label> <template> <install dir> <distribution>\n" % sys.argv[0])
-        sys.stderr.write("       %s destroy <label>\n" % sys.argv[0])
-        sys.stderr.write("       %s info <label>\n" % sys.argv[0])
-        sys.stderr.write("       %s list\n" % sys.argv[0])
-        sys.stderr.write("       %s build <label> <package name or .dsc file>\n" % sys.argv[0])
-        sys.exit(1)
-    
-    sys.exit()
+    sys.stderr.write("Usage: %s create <label> <template> <install dir> <distribution>\n" % sys.argv[0])
+    sys.stderr.write("       %s destroy <label>\n" % sys.argv[0])
+    sys.stderr.write("       %s info <label>\n" % sys.argv[0])
+    sys.stderr.write("       %s list\n" % sys.argv[0])
+    sys.stderr.write("       %s build <label> <package name or .dsc file>\n" % sys.argv[0])
+    sys.exit(1)
