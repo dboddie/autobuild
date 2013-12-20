@@ -1,0 +1,10 @@
+MIRRORSITE=http://no.archive.ubuntu.com/ubuntu
+CCACHEDIR=%(install dir)s/ccache
+
+APTCACHE=%(install dir)s/%(distribution)s/cache/aptcache
+BASETGZ=%(install dir)s/%(distribution)s/cache/base.tgz
+BUILDPLACE=%(install dir)s/%(distribution)s/cache/build/
+BUILDRESULT=%(install dir)s/%(distribution)s/cache/result/
+DISTRIBUTION=%(distribution)s
+EXTRAPACKAGES=""
+HOOKDIR=%(install dir)s/%(distribution)s/hooks
