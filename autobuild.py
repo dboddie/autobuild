@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-import commands, os, sys, tempfile
+import commands, glob, os, sys, tempfile
+from debian.deb822 import Changes, Dsc
 
 def mkdir(path):
 
@@ -24,13 +25,30 @@ def rmdir(path):
         sys.stderr.write("Failed to remove directory: %s\n" % path)
         sys.exit(1)
 
-def remove_dir(path):
+def remove_dir(path, sudo = False):
 
-    if os.system("sudo rm -rf " + commands.mkarg(path)) == 0:
+    command = "rm -rf " + commands.mkarg(path)
+    if sudo:
+        command = "sudo " + command
+    
+    if os.system(command) == 0:
         print "Removed", path, "and its contents."
         return True
     else:
         sys.stderr.write("Failed to remove directory: %s\n" % path)
+        return False
+
+def remove_file(path, sudo = False):
+
+    command = "rm -f " + commands.mkarg(path)
+    if sudo:
+        command = "sudo " + command
+    
+    if os.system(command) == 0:
+        print "Removed", path
+        return True
+    else:
+        sys.stderr.write("Failed to remove file: %s\n" % path)
         return False
 
 def write_file(path, text):
@@ -114,6 +132,7 @@ if __name__ == "__main__":
             label, template, install_dir, distribution = sys.argv[2:]
             
             install_label_dir = os.path.join(install_dir, label)
+            install_hooks_dir = os.path.join(install_dir, label, "hooks")
             pbuilderrc = os.path.join(install_label_dir, "pbuilderrc")
             
             # Check to see if the chroot already exists.
@@ -127,9 +146,10 @@ if __name__ == "__main__":
                        "label": label,
                        "distribution": distribution}
             
-            # Create the installation directory and a pbuilderrc file.
+            # Create the installation directories and a pbuilderrc file.
             mkdir(install_dir)
             mkdir(install_label_dir)
+            mkdir(install_hooks_dir)
             
             text = open(template, "r").read()
             text = text % details
@@ -162,7 +182,7 @@ if __name__ == "__main__":
             pbuilderrc = os.path.join(install_label_dir, "pbuilderrc")
             
             # Remove the installation directory for this distribution.
-            if remove_dir(install_label_dir):
+            if remove_dir(install_label_dir, sudo = True):
             
                 # Remove the chroot from a list in a file in the current directory.
                 config.remove(label)
@@ -178,12 +198,30 @@ if __name__ == "__main__":
             config.check_label(label)
             
             template, install_dir, distribution, pbuilderrc = config.lines[label]
+            products_dir = os.path.join(install_dir, label, "cache", "result")
             
             print label
             print "Template:          ", template
             print "Installation:      ", install_dir
             print "Distribution:      ", distribution
             print "Configuration file:", pbuilderrc
+            print "Products directory:", products_dir
+            sys.exit()
+        
+        elif command == "products" and len(sys.argv) == 3:
+        
+            label = sys.argv[2]
+            
+            # Check to see if the chroot already exists.
+            config.check_label(label)
+            
+            template, install_dir, distribution, pbuilderrc = config.lines[label]
+            products_dir = os.path.join(install_dir, label, "cache", "result")
+            
+            for dsc_path in glob.glob(os.path.join(products_dir, "*.dsc")):
+                dsc = Dsc(open(dsc_path).read())
+                print dsc["Source"], dsc["Version"]
+            
             sys.exit()
         
         elif command == "list" and len(sys.argv) == 2:
@@ -235,9 +273,58 @@ if __name__ == "__main__":
             
             sys.exit()
     
+        elif command == "remove" and len(sys.argv) == 4:
+        
+            label = sys.argv[2]
+            name = sys.argv[3]
+            
+            # Check to see if the chroot already exists.
+            config.check_label(label)
+            template, install_dir, distribution, pbuilderrc = config.lines[label]
+            products_dir = os.path.join(install_dir, label, "cache", "result")
+            
+            # Find the .dsc and .changes files for the named package.
+            names = glob.glob(os.path.join(products_dir, name + "*.changes"))
+            if len(names) != 1:
+                sys.stderr.write("Unable to find a unique match for '%s'.\n" % name)
+                sys.exit(1)
+            
+            changes_path = names[0]
+            
+            names = glob.glob(os.path.join(products_dir, name + "*.dsc"))
+            if len(names) != 1:
+                sys.stderr.write("Unable to find a unique match for '%s'.\n" % name)
+                sys.exit(1)
+            
+            dsc_path = names[0]
+            
+            # Open the files and locate the other build products.
+            changes = Changes(open(changes_path).read())
+            dsc = Dsc(open(dsc_path).read())
+            
+            # Collect the file names of the files associated with this package.
+            files = set([changes_path, dsc_path])
+            
+            for section in ("Checksums-Sha1", "Checksums-Sha256", "Files"):
+            
+                for desc in changes, dsc:
+                    try:
+                        for entry in desc[section]:
+                            files.add(entry["name"])
+                    except KeyError:
+                        pass
+            
+            # Delete the files associated with this package.
+            for file_name in files:
+                remove_file(os.path.join(products_dir, file_name), sudo = True)
+            
+            sys.exit()
+    
     sys.stderr.write("Usage: %s create <label> <template> <install dir> <distribution>\n" % sys.argv[0])
     sys.stderr.write("       %s destroy <label>\n" % sys.argv[0])
     sys.stderr.write("       %s info <label>\n" % sys.argv[0])
+    sys.stderr.write("       %s products <label>\n" % sys.argv[0])
     sys.stderr.write("       %s list\n" % sys.argv[0])
     sys.stderr.write("       %s build <label> <package name or .dsc file>\n" % sys.argv[0])
+    sys.stderr.write("       %s remove <label> <package name>\n" % sys.argv[0])
     sys.exit(1)
