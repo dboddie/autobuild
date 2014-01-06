@@ -332,6 +332,24 @@ if __name__ == "__main__":
             
             sys.exit()
     
+        elif command == "debuild" and len(sys.argv) == 3:
+        
+            label = sys.argv[2]
+            
+            # Check to see if the chroot already exists.
+            config.check_label(label)
+            template, install_dir, distribution, pbuilderrc = config.lines[label]
+            
+            # Assume that we are in a package source directory and run pdebuild,
+            # passing pbuilder options after the -- separator.
+            if os.system("sudo pdebuild -- --configfile " + \
+                         commands.mkarg(pbuilderrc)) == 0:
+            
+                products_dir = os.path.join(install_dir, label, "cache", "result")
+                print "Build products can be found in", products_dir
+            
+            sys.exit()
+    
         elif command == "remove" and len(sys.argv) == 4:
         
             label = sys.argv[2]
@@ -382,10 +400,11 @@ if __name__ == "__main__":
     sys.stderr.write("Usage: %s create <label> <template> <install dir> <distribution>\n" % sys.argv[0])
     sys.stderr.write("       %s destroy <label>\n" % sys.argv[0])
     sys.stderr.write("       %s update <label>\n" % sys.argv[0])
+    sys.stderr.write("       %s list\n" % sys.argv[0])
     sys.stderr.write("       %s info <label>\n" % sys.argv[0])
     sys.stderr.write("       %s hooks <label>\n" % sys.argv[0])
     sys.stderr.write("       %s products <label>\n" % sys.argv[0])
-    sys.stderr.write("       %s list\n" % sys.argv[0])
     sys.stderr.write("       %s build <label> <package name or .dsc file>\n" % sys.argv[0])
+    sys.stderr.write("       %s debuild <label>\n" % sys.argv[0])
     sys.stderr.write("       %s remove <label> <package name>\n" % sys.argv[0])
     sys.exit(1)
