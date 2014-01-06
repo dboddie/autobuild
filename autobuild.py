@@ -190,6 +190,27 @@ if __name__ == "__main__":
             
             sys.exit()
     
+        elif command == "update" and len(sys.argv) == 3:
+        
+            label = sys.argv[2]
+            
+            # Check to see if the chroot already exists.
+            config.check_label(label)
+            
+            template, install_dir, distribution, pbuilderrc = config.lines[label]
+            
+            install_label_dir = os.path.join(install_dir, label)
+            pbuilderrc = os.path.join(install_label_dir, "pbuilderrc")
+            
+            # Update the chroot by running pbuilder.
+            if os.system("sudo pbuilder update --configfile " + commands.mkarg(pbuilderrc)) == 0:
+                print "chroot '%s' updated successfully." % label
+            else:
+                sys.stderr.write("Failed to update chroot '%s'.\n" % label)
+                sys.exit(1)
+            
+            sys.exit()
+    
         elif command == "info" and len(sys.argv) == 3:
         
             label = sys.argv[2]
@@ -198,6 +219,7 @@ if __name__ == "__main__":
             config.check_label(label)
             
             template, install_dir, distribution, pbuilderrc = config.lines[label]
+            hooks_dir = os.path.join(install_dir, label, "hooks")
             products_dir = os.path.join(install_dir, label, "cache", "result")
             
             print label
@@ -205,7 +227,44 @@ if __name__ == "__main__":
             print "Installation:      ", install_dir
             print "Distribution:      ", distribution
             print "Configuration file:", pbuilderrc
+            print "Hooks directory:   ", hooks_dir
             print "Products directory:", products_dir
+            sys.exit()
+        
+        elif command == "hooks" and len(sys.argv) == 3:
+        
+            label = sys.argv[2]
+            
+            # Check to see if the chroot already exists.
+            config.check_label(label)
+            
+            template, install_dir, distribution, pbuilderrc = config.lines[label]
+            hooks_dir = os.path.join(install_dir, label, "hooks")
+            
+            hooks = {}
+            for name in os.listdir(hooks_dir):
+                hooks.setdefault(name[0], []).append(name)
+            
+            if not hooks:
+                sys.exit()
+            
+            print hooks_dir
+            
+            for prefix, desc in (("D", "Before unpacking build system"),
+                                 ("A", "Before building"),
+                                 ("B", "After a successful build"),
+                                 ("C", "After a failed build")):
+            
+                names = hooks.get(prefix, [])
+                
+                if names:
+                    names.sort()
+                    print
+                    print desc + ":"
+                    
+                    for name in names:
+                        print " ", name
+            
             sys.exit()
         
         elif command == "products" and len(sys.argv) == 3:
@@ -322,7 +381,9 @@ if __name__ == "__main__":
     
     sys.stderr.write("Usage: %s create <label> <template> <install dir> <distribution>\n" % sys.argv[0])
     sys.stderr.write("       %s destroy <label>\n" % sys.argv[0])
+    sys.stderr.write("       %s update <label>\n" % sys.argv[0])
     sys.stderr.write("       %s info <label>\n" % sys.argv[0])
+    sys.stderr.write("       %s hooks <label>\n" % sys.argv[0])
     sys.stderr.write("       %s products <label>\n" % sys.argv[0])
     sys.stderr.write("       %s list\n" % sys.argv[0])
     sys.stderr.write("       %s build <label> <package name or .dsc file>\n" % sys.argv[0])
