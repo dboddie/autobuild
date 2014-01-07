@@ -1,0 +1,12 @@
+MIRRORSITE=http://repo.met.no/ubuntu
+OTHERMIRROR='deb http://repo.met.no/ubuntu precise universe|deb http://repo.met.no/met.no precise main contrib partner'
+CCACHEDIR=%(install dir)s/ccache
+
+APTCACHE=%(install dir)s/%(label)s/cache/aptcache
+APTKEYRINGS=/etc/apt/trusted.gpg
+BASETGZ=%(install dir)s/%(label)s/cache/base.tgz
+BUILDPLACE=%(install dir)s/%(label)s/cache/build/
+BUILDRESULT=%(install dir)s/%(label)s/cache/result/
+DISTRIBUTION=%(distribution)s
+EXTRAPACKAGES=""
+HOOKDIR=%(install dir)s/%(label)s/hooks
