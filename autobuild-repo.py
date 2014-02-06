@@ -61,7 +61,7 @@ if __name__ == "__main__":
             os.chdir(path)
             if os.path.exists(os.path.join(path, ".git")):
                 result = os.system("git pull")
-            elf os.path.exists(os.path.join(path, ".svn")):
+            elif os.path.exists(os.path.join(path, ".svn")):
                 result = os.system("svn up")
             else:
                 result = -1
