@@ -1,0 +1,6 @@
+autobuild (0.1.0-1) unstable; urgency=low
+
+  * Initial release of a collection of tools for building Debian packages
+    from source code repositories.
+
+ -- David Boddie <david.boddie@met.no>  Thu, 06 Feb 2013 17:01:00 +0100

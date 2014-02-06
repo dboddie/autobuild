@@ -1,0 +1,12 @@
+Source: autobuild
+Maintainer: David Boddie <david.boddie@met.no>
+Section: python
+Priority: optional
+Build-Depends: python-all (>= 2.6.6-3), debhelper (>= 7.4.3)
+Standards-Version: 3.9.1
+
+Package: autobuild
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}
+Description: Tools for building Debian packages from source code repositories.
+
