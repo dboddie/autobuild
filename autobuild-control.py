@@ -3,6 +3,8 @@
 import commands, glob, os, sys, tempfile
 from debian.deb822 import Changes, Dsc
 
+from autobuild.config import Config
+
 def mkdir(path):
 
     if os.path.isdir(path):
@@ -60,65 +62,6 @@ def write_file(path, text):
         sys.stderr.write("Failed to write file: %s\n" % path)
         sys.exit(1)
 
-class Config:
-
-    def __init__(self):
-    
-        home_dir = os.getenv("HOME", os.path.split(os.path.abspath(__file__))[0])
-        self.path = os.path.join(home_dir, ".autobuild")
-        self.load()
-    
-    def load(self):
-    
-        try:
-            self.lines = {}
-            for line in open(self.path).readlines():
-            
-                at = line.find(": ")
-                label, values = line[:at], line[at + 2:].rstrip().split("\t")
-                self.lines[label] = values
-        
-        except IOError:
-            self.lines = {}
-    
-    def save(self):
-    
-        try:
-            f = open(self.path, "w")
-            items = self.lines.items()
-            items.sort()
-            for label, values in items:
-                f.write(label + ": " + "\t".join(values) + "\n")
-            f.close()
-        
-        except IOError:
-            sys.stderr.write("Failed to update the list of active chroots.\n")
-    
-    def check(self, label, template, install_dir, distribution, pbuilderrc):
-    
-        if label in self.lines:
-            return True
-        
-        new_line = [template, install_dir, distribution, pbuilderrc]
-        
-        return new_line in self.lines.values()
-    
-    def check_label(self, label):
-    
-        if not label in self.lines:
-        
-            sys.stderr.write("No chroot exists with that configuration.\n")
-            sys.exit(1)
-    
-    def add(self, label, template, install_dir, distribution, pbuilderrc):
-    
-        new_line = [template, install_dir, distribution, pbuilderrc]
-        self.lines[label] = new_line
-    
-    def remove(self, label):
-
-        del self.lines[label]
-
 
 if __name__ == "__main__":
 
@@ -136,7 +79,7 @@ if __name__ == "__main__":
             pbuilderrc = os.path.join(install_label_dir, "pbuilderrc")
             
             # Check to see if the chroot already exists.
-            if config.check(label, template, install_dir, distribution, pbuilderrc):
+            if config.check(label, [template, install_dir, distribution, pbuilderrc]):
             
                 sys.stderr.write("A chroot already exists with that configuration.\n")
                 sys.exit(1)
@@ -163,12 +106,12 @@ if __name__ == "__main__":
                 # after we have read it.
                 config = Config()
                 
-                # Add the chroot to a list in a file in the current directory.
-                config.add(label, template, install_dir, distribution, pbuilderrc)
+                # Add the chroot to a list in the configuration file.
+                config.add(label, [template, install_dir, distribution, pbuilderrc])
                 config.save()
             
             sys.exit()
-    
+        
         elif command == "destroy" and len(sys.argv) == 3:
         
             label = sys.argv[2]
@@ -184,12 +127,12 @@ if __name__ == "__main__":
             # Remove the installation directory for this distribution.
             if remove_dir(install_label_dir, sudo = True):
             
-                # Remove the chroot from a list in a file in the current directory.
+                # Remove the chroot from a list in the configuration file.
                 config.remove(label)
                 config.save()
             
             sys.exit()
-    
+        
         elif command == "update" and len(sys.argv) == 3:
         
             label = sys.argv[2]
@@ -210,7 +153,7 @@ if __name__ == "__main__":
                 sys.exit(1)
             
             sys.exit()
-    
+        
         elif command == "info" and len(sys.argv) == 3:
         
             label = sys.argv[2]
@@ -331,7 +274,7 @@ if __name__ == "__main__":
                 os.chdir(old_directory)
             
             sys.exit()
-    
+        
         elif command == "debuild" and len(sys.argv) == 3:
         
             label = sys.argv[2]
@@ -349,7 +292,7 @@ if __name__ == "__main__":
                 print "Build products can be found in", products_dir
             
             sys.exit()
-    
+        
         elif command == "remove" and len(sys.argv) == 4:
         
             label = sys.argv[2]
