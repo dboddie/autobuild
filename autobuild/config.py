@@ -2,10 +2,11 @@ import os, sys
 
 class Config:
 
-    def __init__(self):
+    def __init__(self, stem = None):
     
-        name = os.path.split(sys.argv[0])[1]
-        stem = os.path.splitext(name)[0]
+        if stem is None:
+            name = os.path.split(sys.argv[0])[1]
+            stem = os.path.splitext(name)[0]
         
         home_dir = os.getenv("HOME", os.path.split(os.path.abspath(__file__))[0])
         self.path = os.path.join(home_dir, "." + stem)
