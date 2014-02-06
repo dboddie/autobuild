@@ -42,11 +42,11 @@ class Handler:
         if not name:
             failure(name)
         
-        
+        success()
     
     def list(self):
     
-        
+        success()
     
     actions = {"update": update,
                "list": list}
