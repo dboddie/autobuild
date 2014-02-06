@@ -38,7 +38,7 @@ class Handler:
     
     def update(self):
     
-        name = query.get("name"):
+        name = query.get("name")
         if not name:
             failure(name)
         
