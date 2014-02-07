@@ -7,6 +7,6 @@ Standards-Version: 3.9.1
 
 Package: autobuild
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}
+Depends: python-daemon, pbuilder, ${misc:Depends}, ${python:Depends}
 Description: Tools for building Debian packages from source code repositories.
 

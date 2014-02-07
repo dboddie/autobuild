@@ -47,10 +47,7 @@ class Config:
     
     def check_label(self, label):
     
-        if not label in self.lines:
-        
-            sys.stderr.write("No label exists with that configuration.\n")
-            sys.exit(1)
+        return label in self.lines
     
     def add(self, label, value):
     
