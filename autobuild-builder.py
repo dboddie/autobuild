@@ -2,7 +2,7 @@
 
 import sys, traceback
 
-from autobuild import builder
+from autobuild.builder import Builder
 
 def run(function, arguments):
 
@@ -20,6 +20,7 @@ if __name__ == "__main__":
     if len(sys.argv) >= 2:
     
         command = sys.argv[1]
+        builder = Builder()
         
         if command == "create" and len(sys.argv) == 6:
         
