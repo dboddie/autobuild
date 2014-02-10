@@ -114,7 +114,7 @@ class Build:
         current_dir = os.path.abspath(os.curdir)
         os.chdir(repo_path)
 
-        s = subprocess.Popen(["sudo", "autobuild-builder.py", "debuild", commands.mkarg(chroot), "&"])
+        s = subprocess.Popen(["sudo", "autobuild-builder.py", "debuild", commands.mkarg(chroot), "&"], shell = True)
         processes.update_process(chroot, repo, s.pid)
 
         os.chdir(current_dir)
