@@ -113,9 +113,14 @@ class Build:
         
         current_dir = os.path.abspath(os.curdir)
         os.chdir(repo_path)
-
-        s = subprocess.Popen(["sudo", "autobuild-builder.py", "debuild", commands.mkarg(chroot), "&"], shell = True)
-        processes.update_process(chroot, repo, s.pid)
+        
+        pid = os.fork()
+        if pid == 0:
+            # Child process (pid is 0)
+            sys.exit(os.system("sudo autobuild-builder.py debuild" + commands.mkarg(chroot)))
+        else:
+            # Parent process (pid is child pid)
+            processes.update_process(chroot, repo, pid)
 
         os.chdir(current_dir)
 
