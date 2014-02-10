@@ -101,7 +101,7 @@ class Build:
             repo_path = repo_conf.lines[repo][0]
             
             build_conf = config.Config("autobuild-builder")
-            if build_conf.check_label(chroot):
+            if not build_conf.check_label(chroot):
                 raise web.notfound()
 
         except KeyError:

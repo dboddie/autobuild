@@ -1,4 +1,4 @@
-import fcntl, os, sys
+import os, sys
 
 class Config:
 
@@ -17,7 +17,6 @@ class Config:
         try:
             self.lines = {}
             f = open(self.path)
-            fcntl.lockf(f, fcntl.LOCK_EX)
 
             for line in f.readlines():
             
@@ -26,7 +25,6 @@ class Config:
                 self.lines[label] = values
             
             f.close()
-            fcntl.lockf(f, fcntl.LOCK_UN)
         
         except IOError:
             self.lines = {}
@@ -35,15 +33,12 @@ class Config:
     
         try:
             f = open(self.path, "w")
-            fcntl.lockf(f, fcntl.LOCK_EX)
 
             items = self.lines.items()
             items.sort()
             for label, values in items:
                 f.write(label + ": " + "\t".join(values) + "\n")
             f.close()
-
-            fcntl.lockf(f, fcntl.LOCK_UN)
         
         except IOError:
             sys.stderr.write("Failed to update the configuration file.\n")
