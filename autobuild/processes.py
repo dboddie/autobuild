@@ -1,9 +1,9 @@
 import os
 import config
 
-def claim_process(chroot, repo):
+def claim_process(lock, chroot, repo):
 
-    c = config.Config("autobuild-building")
+    c = config.Config(path = lock.path)
     label = chroot + "-" + repo
 
     try:
@@ -21,9 +21,9 @@ def claim_process(chroot, repo):
 
     return True
 
-def update_process(chroot, repo, pid):
+def update_process(lock, chroot, repo, pid):
 
-    c = config.Config("autobuild-building")
+    c = config.Config(path = lock.path)
     label = chroot + "-" + repo
     c.add(label, ["None"])
     c.save()
