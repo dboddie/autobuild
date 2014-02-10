@@ -16,7 +16,7 @@ class Update:
     done_template = ("$def with (name)\n"
                      "Updated $name.")
     
-    def GET(self):
+    def POST(self):
     
         if web.ctx.query.startswith("?"):
             q = cgi.parse_qs(web.ctx.query[1:])
