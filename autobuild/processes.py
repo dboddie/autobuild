@@ -7,7 +7,7 @@ def claim_process(chroot, repo):
     label = chroot + "-" + repo
 
     try:
-        pid = c.lines[label]
+        [pid] = c.lines[label]
 
         pid = int(pid)
 
