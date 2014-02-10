@@ -202,7 +202,7 @@ class Builder:
             dsc = Dsc(open(dsc_path).read())
             print dsc["Source"], dsc["Version"]
     
-    def list(self, ):
+    def list(self):
     
         labels = self.config.lines.keys()
         labels.sort()
