@@ -75,8 +75,8 @@ class Chroots(Repos):
 
 class Build:
 
-    done_template = ("$def with (name)\n"
-                     "Built $name.")
+    done_template = ("$def with (chroot, repo)\n"
+                     "Started build of $repo for $chroot.")
     
     def GET(self):
     
@@ -108,14 +108,11 @@ class Build:
         current_dir = os.path.abspath(os.curdir)
         os.chdir(repo_path)
 
-        s = subprocess.Popen(["sudo", "autobuild-builder.py", "debuild", chroot])
+        os.system("sudo autobuild-builder.py debuild " + commands.mkarg(chroot) + " &")
         os.chdir(current_dir)
 
-        if s.wait() == 0:
-            t = web.template.Template(self.done_template)
-            return t(name)
-        else:
-            raise web.notfound()
+        t = web.template.Template(self.done_template)
+        return t(chroot, repo)
 
 
 if __name__ == "__main__":
