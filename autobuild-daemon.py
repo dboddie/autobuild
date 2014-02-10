@@ -4,7 +4,7 @@ import cgi, commands, os, subprocess, sys
 import daemon
 import web
 
-from autobuild import builder, config
+from autobuild import config, processes
 
 urls = ("/update", "Update",
         "/repos", "Repos",
@@ -101,20 +101,22 @@ class Build:
             repo_path = repo_conf.lines[repo][0]
             
             build_conf = config.Config("autobuild-builder")
-            b = builder.Builder(build_conf)
-            
-            os.chdir(repo_path)
-            b.debuild(chroot)
-            os.chdir(current_dir)
+            if build_conf.check_label(chroot):
+                raise web.notfound()
 
-        except (KeyError, builder.AutobuildError):
-            os.chdir(current_dir)
+        except KeyError:
+            raise web.notfound()
+        
+        # Check for an existing process and reserve space for a new one.
+        if not processes.claim_process(chroot, repo):
             raise web.notfound()
         
         current_dir = os.path.abspath(os.curdir)
         os.chdir(repo_path)
 
-        os.system("sudo autobuild-builder.py debuild " + commands.mkarg(chroot) + " &")
+        s = subprocess.Popen(["sudo", "autobuild-builder.py", "debuild", commands.mkarg(chroot), "&"])
+        processes.claim_process(chroot, repo, s.pid)
+
         os.chdir(current_dir)
 
         t = web.template.Template(self.done_template)
