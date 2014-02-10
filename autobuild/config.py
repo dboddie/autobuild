@@ -1,4 +1,4 @@
-import lockfile, os, sys
+import os, sys
 
 class Config:
 
@@ -16,8 +16,6 @@ class Config:
     
         try:
             self.lines = {}
-            lock = lockfile.FileLock(self.path)
-            lock.acquire()
 
             f = open(self.path)
 
@@ -28,7 +26,6 @@ class Config:
                 self.lines[label] = values
             
             f.close()
-            lock.release()
         
         except IOError:
             self.lines = {}
@@ -36,9 +33,6 @@ class Config:
     def save(self):
     
         try:
-            lock = lockfile.FileLock(self.path)
-            lock.acquire()
-
             f = open(self.path, "w")
 
             items = self.lines.items()
@@ -47,7 +41,6 @@ class Config:
                 f.write(label + ": " + "\t".join(values) + "\n")
 
             f.close()
-            lock.release()
         
         except IOError:
             sys.stderr.write("Failed to update the configuration file.\n")
