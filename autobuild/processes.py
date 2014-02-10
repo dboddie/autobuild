@@ -13,7 +13,7 @@ def claim_process(chroot, repo):
             # A process is being started.
             return False
 
-        pid_status = os.wait(pid, os.WNOHANG)
+        pid_status = os.waitpid(pid, os.WNOHANG)
         if pid_status == (0, 0):
             # Still running/no information.
             return False
