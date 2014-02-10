@@ -5,7 +5,6 @@ processes = {}
 
 def claim_process(chroot, repo):
 
-    print processes
     try:
         pid = processes[(chroot, repo)]
 

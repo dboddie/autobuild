@@ -109,7 +109,7 @@ class Build:
         
         # Check for an existing process and reserve space for a new one.
         if not processes.claim_process(chroot, repo):
-            raise web.notfound()
+            raise web.notfound("Not starting build")
         
         current_dir = os.path.abspath(os.curdir)
         os.chdir(repo_path)
