@@ -4,7 +4,7 @@ import cgi, commands, os, subprocess, sys
 import daemon
 import web
 
-from autobuild import config
+from autobuild import builder, config
 
 urls = ("/update", "Update",
         "/repos", "Repos",
@@ -94,15 +94,21 @@ class Build:
 
     def build(self, chroot, repo):
     
-        try:
-            c = config.Config("autobuild-repo")
-            repo_path = c.lines[repo][0]
-            
-            c = config.Config("autobuild-builder")
-            if not c.check_label(chroot):
-                raise web.notfound
+        current_dir = os.path.abspath(os.curdir)
 
-        except KeyError:
+        try:
+            repo_conf = config.Config("autobuild-repo")
+            repo_path = repo_conf.lines[repo][0]
+            
+            build_conf = config.Config("autobuild-builder")
+            b = builder.Builder(build_conf)
+            
+            os.chdir(repo_path)
+            b.debuild(chroot)
+            os.chdir(current_dir)
+
+        except (KeyError, builder.AutobuildError):
+            os.chdir(current_dir)
             raise web.notfound()
         
         current_dir = os.path.abspath(os.curdir)
