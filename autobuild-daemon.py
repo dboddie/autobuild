@@ -131,6 +131,7 @@ class Build:
 
 if __name__ == "__main__":
 
+    global process_manager
     process_manager = processes.Manager()
 
     if True: # with daemon.DaemonContext():
