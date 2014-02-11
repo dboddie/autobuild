@@ -200,7 +200,7 @@ class Product(Base):
         if not chroot or not file_name:
             raise web.notfound()
         
-        web.header("Content-Disposition", 'attachment; filename="%s"' % file_name)
+        web.header("Content-Disposition", 'attachment; filename="%s"' % file_name[0])
         return self.product(chroot[0], file_name[0])
 
     def product(self, chroot, file_name):
