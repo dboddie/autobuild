@@ -172,6 +172,10 @@ class Products(Base):
         c = config.Config(Chroots.config)
         b = builder.Builder(c)
         
+        return self.products(chroot[0], repo[0])
+
+    def products(self, chroot, repo):
+
         try:
             products = b.products(chroot)
         except KeyError:
