@@ -1,4 +1,4 @@
-import os, shutil, stat
+import os, stat
 
 temp_dir = "/tmp"
     
@@ -19,4 +19,8 @@ def claim_process(chroot, repo):
 def update_process(path, pid):
 
     open(path, "w").write(str(pid))
+
+def remove_lockfile(path):
+
+    os.remove(path)
 
