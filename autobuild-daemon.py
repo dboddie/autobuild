@@ -212,7 +212,7 @@ class Product(Base):
         except KeyError:
             raise notfound("No such chroot")
         
-        file_path = os.path.join(info["hooks"], file_name)
+        file_path = os.path.join(info["products"], file_name)
 
         return open(file_path, "rb").read()
 
