@@ -5,7 +5,7 @@ def claim_process(chroot, repo):
 
     c = config.Config("autobuild-building", load = False)
     f = open(c.path)
-    c.lock()
+    c.lock(f)
     c._load()
 
     label = chroot + "-" + repo
@@ -15,7 +15,7 @@ def claim_process(chroot, repo):
 
         if pid == "None":
             # Another process is being set up.
-            c.unlock()
+            c.unlock(f)
             f.close()
             return False
 
@@ -24,7 +24,7 @@ def claim_process(chroot, repo):
         pid_status = os.waitpid(pid, os.WNOHANG)
         if pid_status == (0, 0):
             # Still running/no information.
-            c.unlock()
+            c.unlock(f)
             f.close()
             return False
 
@@ -34,7 +34,7 @@ def claim_process(chroot, repo):
 
     c.add(label, ["None"])
     c._save()
-    c.unlock()
+    c.unlock(f)
     f.close()
     return True
 
@@ -42,12 +42,12 @@ def update_process(chroot, repo, pid):
 
     c = config.Config("autobuild-building", load = False)
     f = open(c.path, "w")
-    c.lock()
+    c.lock(f)
     c._load()
 
     label = chroot + "-" + repo
     c.remove(label)
     c.add(label, [pid])
     c._save()
-    c.unlock()
+    c.unlock(f)
     f.close()
