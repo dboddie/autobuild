@@ -154,10 +154,12 @@ class Products(Base):
                 "<html>\n<head><title>$title</title></head>\n"
                 "<body>\n"
                 "<h1>$title</h1>\n"
-                "<ul>\n"
+                "<dl>\n"
                 "$for product in products:\n"
-                "    <li>$product['Source']</li>\n"
-                "</ul>\n"
+                "    <dt>$product['Source']</dt>\n"
+                "    $for file in product['Files']:\n"
+                '        <dd><a href="$("/product?chroot=%s&file=%s" % (chroot, file["name"]))">$file["name"]</a></dd>\n'
+                "</dl>\n"
                 "</body>\n</html>\n")
     
     def GET(self):
@@ -180,6 +182,8 @@ class Products(Base):
             products = b.products(chroot)
         except KeyError:
             raise notfound("No such chroot")
+        
+        products = filter(lambda dsc: dsc["Source"].startswith(repo), products)
         
         t = web.template.Template(self.template)
         return t("Products", chroot, repo, products)
