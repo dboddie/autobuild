@@ -13,6 +13,12 @@ def claim_process(chroot, repo):
     try:
         [pid] = c.lines[label]
 
+        if pid == "None":
+            # Another process is being set up.
+            c.unlock()
+            f.close()
+            return False
+
         pid = int(pid)
 
         pid_status = os.waitpid(pid, os.WNOHANG)
@@ -22,7 +28,8 @@ def claim_process(chroot, repo):
             f.close()
             return False
 
-    except (KeyError, ValueError):
+    except KeyError:
+        # No label exists, so continue with the process.
         pass
 
     c.add(label, ["None"])
