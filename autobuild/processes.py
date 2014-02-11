@@ -43,8 +43,8 @@ def status(chroot, repo):
     elif os.path.exists(result_path):
         result = open(result_path).read().strip()
         if result == "0":
-            return '<span class="success">Built</span>'
+            return "Built"
         else:
-            return '<span class="failure">Failed</span>'
+            return "Failed"
     else:
-        return ""
+        return "Not built"

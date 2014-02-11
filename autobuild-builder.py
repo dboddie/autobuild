@@ -7,12 +7,11 @@ from autobuild.builder import Builder
 def run(function, arguments):
 
     try:
-        function(*arguments)
-        return 0
+        return function(*arguments)
     
     except:
         sys.stderr.write(traceback.format_exc() + "\n")
-        return 1
+        sys.exit(1)
 
 
 if __name__ == "__main__":
@@ -36,7 +35,16 @@ if __name__ == "__main__":
         
         elif command == "info" and len(sys.argv) == 3:
         
-            sys.exit(run(builder.info, sys.argv[2:3]))
+            info = run(builder.info, sys.argv[2:3])
+
+            print sys.argv[2]
+            print "Template:          ", info[0]
+            print "Installation:      ", info[1]
+            print "Distribution:      ", info[2]
+            print "Configuration file:", info[3]
+            print "Hooks directory:   ", info[4]
+            print "Products directory:", info[5]
+            sys.exit()
         
         elif command == "hooks" and len(sys.argv) == 3:
         
@@ -44,11 +52,15 @@ if __name__ == "__main__":
         
         elif command == "products" and len(sys.argv) == 3:
         
-            sys.exit(run(builder.products, sys.argv[2:3]))
+            for dsc in run(builder.products, sys.argv[2:3]):
+                print dsc["Source"], dsc["Version"]
+            sys.exit()
         
         elif command == "list" and len(sys.argv) == 2:
         
-            sys.exit(run(builder.list, ()))
+            labels = run(builder.list, ())
+            print "\n".join(labels)
+            sys.exit()
         
         elif command == "build" and len(sys.argv) == 4:
         

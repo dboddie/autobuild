@@ -4,25 +4,34 @@ import cgi, commands, os, subprocess, sys
 import daemon
 import web
 
-from autobuild import config, processes
+from autobuild import builder, config, processes
 
 urls = ("/", "Overview",
         "/update", "Update",
         "/repos", "Repos",
         "/chroots", "Chroots",
-        "/build", "Build")
+        "/build", "Build",
+        "/products", "Products")
 
-class Update:
+class Base:
 
-    done_template = ("$def with (repo)\n"
-                     "Updated $repo.")
-    
-    def POST(self):
+    def get_query(self):
     
         if web.ctx.query.startswith("?"):
             q = cgi.parse_qs(web.ctx.query[1:])
         else:
             q = {}
+
+        return q
+
+class Update(Base):
+
+    template = ("$def with (repo)\n"
+                     "Updated $repo.")
+    
+    def POST(self):
+    
+        q = self.get_query()
 
         repo = q.get("repo")
         if not repo:
@@ -36,7 +45,7 @@ class Update:
 
         s = subprocess.Popen(["autobuild-repo.py", "update", repo])
         if s.wait() == 0:
-            t = web.template.Template(self.done_template)
+            t = web.template.Template(self.template)
             return t(repo)
         else:
             raise web.notfound()
@@ -45,15 +54,15 @@ class Repos:
 
     title = "Repositories"
     config = "autobuild-repo"
-    done_template = ("$def with (title, repos)\n"
-                     "<html>\n<head><title>$title</title></head>\n"
-                     "<body>\n"
-                     "<h1>$title</h1>\n"
-                     "<ul>\n"
-                     "$for name in repos:\n"
-                     "    <li>$name</li>\n"
-                     "</ul>\n"
-                     "</body>\n</html>\n")
+    template = ("$def with (title, repos)\n"
+                "<html>\n<head><title>$title</title></head>\n"
+                "<body>\n"
+                "<h1>$title</h1>\n"
+                "<ul>\n"
+                "$for name in repos:\n"
+                "    <li>$name</li>\n"
+                "</ul>\n"
+                "</body>\n</html>\n")
     
     def GET(self):
 
@@ -65,7 +74,7 @@ class Repos:
         labels = c.lines.keys()
         labels.sort()
 
-        t = web.template.Template(self.done_template)
+        t = web.template.Template(self.template)
         t.content_type = "text/html"
         return t(self.title, labels)
 
@@ -74,17 +83,14 @@ class Chroots(Repos):
     title = "Build Environments"
     config = "autobuild-builder"
 
-class Build:
+class Build(Base):
 
-    done_template = ("$def with (chroot, repo)\n"
-                     "Started build of $repo for $chroot.")
+    template = ("$def with (chroot, repo)\n"
+                "Started build of $repo for $chroot.")
     
     def GET(self):
     
-        if web.ctx.query.startswith("?"):
-            q = cgi.parse_qs(web.ctx.query[1:])
-        else:
-            q = {}
+        q = self.get_query()
 
         chroot = q.get("chroot")
         repo = q.get("repo")
@@ -139,34 +145,66 @@ class Build:
 
         os.chdir(current_dir)
 
-        t = web.template.Template(self.done_template)
+        t = web.template.Template(self.template)
         return t(chroot, repo)
+
+class Products(Base):
+
+    template = ("$def with (title, chroot, repo, products)\n"
+                "<html>\n<head><title>$title</title></head>\n"
+                "<body>\n"
+                "<h1>$title</h1>\n"
+                "<ul>\n"
+                "$for product in products:\n"
+                "    <li>$product['Source']</li>\n"
+                "</ul>\n"
+                "</body>\n</html>\n")
+    
+    def GET(self):
+    
+        q = self.get_query()
+        
+        chroot = q.get("chroot")
+        repo = q.get("repo")
+        if not chroot or not repo:
+            raise web.notfound()
+        
+        c = config.Config(Chroots.config)
+        b = builder.Builder(c)
+        
+        try:
+            products = b.products(chroot)
+        except KeyError:
+            raise notfound("No such chroot")
+        
+        t = web.template.Template(self.template)
+        return t("Products", chroot, repo, products)
 
 class Overview:
 
-    done_template = ("$def with (title, chroots, repos, status)\n"
-                     "<html>\n<head><title>$title</title>\n"
-                     '<style type="text/css">\n'
-                     '  .success { color: green }\n'
-                     '  .failure { color: red }\n'
-                     '</style>\n'
-                     "</head>\n"
-                     "<body>\n"
-                     "<h1>$title</h1>\n"
-                     "<table>\n"
-                     "    <tr>\n"
-                     "    <th></th>\n"
-                     "$for chroot in chroots:\n"
-                     "    <th>$chroot</th>\n"
-                     "    </tr>\n"
-                     "$for repo in repos:\n"
-                     "    <tr>\n"
-                     "    <th>$repo</th>\n"
-                     "    $for chroot in chroots:\n"
-                     "        <td>$status(chroot, repo)</td>\n"
-                     "    </tr>\n"
-                     "</table>\n"
-                     "</body>\n</html>\n")
+    template = ("$def with (title, chroots, repos, status)\n"
+                "<html>\n<head><title>$title</title>\n"
+                '<style type="text/css">\n'
+                '  .success { color: green }\n'
+                '  .failure { color: red }\n'
+                '</style>\n'
+                "</head>\n"
+                "<body>\n"
+                "<h1>$title</h1>\n"
+                "<table>\n"
+                "    <tr>\n"
+                "    <th></th>\n"
+                "$for chroot in chroots:\n"
+                "    <th>$chroot</th>\n"
+                "    </tr>\n"
+                "$for repo in repos:\n"
+                "    <tr>\n"
+                "    <th>$repo</th>\n"
+                "    $for chroot in chroots:\n"
+                "        <td>$status(chroot, repo)</td>\n"
+                "    </tr>\n"
+                "</table>\n"
+                "</body>\n</html>\n")
     
     def GET(self):
 
@@ -177,9 +215,21 @@ class Overview:
         repos = c.lines.keys()
         repos.sort()
         
-        t = web.template.Template(self.done_template)
+        t = web.template.Template(self.template)
         t.content_type = "text/html"
-        return t("Overview", chroots, repos, processes.status)
+        return t("Overview", chroots, repos, self.status)
+
+    def status(self, chroot, repo):
+    
+        status = processes.status(chroot, repo)
+        if status == "Building":
+            return "Building"
+        elif status == "Built":
+            return '<span class="success">Built</span> (<a href="/products?chroot=%s&repo=%s)' % (chroot, repo)
+        elif status == "Failed":
+            return '<span class="failure">Failed</span>'
+        else:
+            return ""
 
 
 if __name__ == "__main__":

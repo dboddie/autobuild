@@ -150,13 +150,7 @@ class Builder:
         hooks_dir = os.path.join(install_dir, label, "hooks")
         products_dir = os.path.join(install_dir, label, "cache", "result")
         
-        print label
-        print "Template:          ", template
-        print "Installation:      ", install_dir
-        print "Distribution:      ", distribution
-        print "Configuration file:", pbuilderrc
-        print "Hooks directory:   ", hooks_dir
-        print "Products directory:", products_dir
+        return template, install_dir, distribution, pbuilderrc, hooks_dir, products_dir
     
     def hooks(self, label):
     
@@ -198,16 +192,18 @@ class Builder:
         template, install_dir, distribution, pbuilderrc = self.config.lines[label]
         products_dir = os.path.join(install_dir, label, "cache", "result")
         
+        products = []
         for dsc_path in glob.glob(os.path.join(products_dir, "*.dsc")):
             dsc = Dsc(open(dsc_path).read())
-            print dsc["Source"], dsc["Version"]
+            products.append(dsc)
+
+        return products
     
     def list(self):
     
         labels = self.config.lines.keys()
         labels.sort()
-        
-        print "\n".join(labels)
+        return labels
     
     def build(self, label, name):
     
