@@ -39,13 +39,12 @@ def status(chroot, repo):
     stdout_path, stderr_path, result_path = output_paths(path)
 
     if os.path.exists(path):
-        if os.path.exists(result_path):
-            result = open(result_path).read().strip()
-            if result == "0":
-                return '<span style="success">Built</span>'
-            else:
-                return '<span style="failure">Failed</span>'
+        return "Building"
+    elif os.path.exists(result_path):
+        result = open(result_path).read().strip()
+        if result == "0":
+            return '<span style="success">Built</span>'
         else:
-            return "Building"
+            return '<span style="failure">Failed</span>'
     else:
         return ""
