@@ -6,7 +6,8 @@ import web
 
 from autobuild import config, processes
 
-urls = ("/update", "Update",
+urls = ("/", "Overview",
+        "/update", "Update",
         "/repos", "Repos",
         "/chroots", "Chroots",
         "/build", "Build")
@@ -134,6 +135,40 @@ class Build:
 
         t = web.template.Template(self.done_template)
         return t(chroot, repo)
+
+class Overview:
+
+    done_template = ("$def with (title, chroots, repos, building)\n"
+                     "<html>\n<head><title>$title</title></head>\n"
+                     "<body>\n"
+                     "<h1>$title</h1>\n"
+                     "<table>\n"
+                     "    <tr>\n"
+                     "    <th></th>\n"
+                     "$for chroot in chroots:\n"
+                     "    <th>$chroot</th>\n"
+                     "    </tr>\n"
+                     "$for repo in repos:\n"
+                     "    <tr>\n"
+                     "    <th>$repo</th>\n"
+                     "    $for chroot in chroots:\n"
+                     "        <td>$building(chroot, repo)</td>\n"
+                     "    </tr>\n"
+                     "</table>\n"
+                     "</body>\n</html>\n")
+    
+    def GET(self):
+
+        c = config.Config(Chroots.config)
+        chroots = c.lines.keys()
+        chroots.sort()
+        c = config.Config(Repos.config)
+        repos = c.lines.keys()
+        repos.sort()
+        
+        t = web.template.Template(self.done_template)
+        t.content_type = "text/html"
+        return t(self.title, labels, chroots, processes.is_building)
 
 
 if __name__ == "__main__":

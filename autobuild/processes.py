@@ -24,3 +24,8 @@ def remove_lockfile(path):
 
     os.remove(path)
 
+def is_building(chroot, repo):
+
+    label = chroot + "-" + repo
+    path = os.path.join(temp_dir, label)
+    return os.path.exists(path)
