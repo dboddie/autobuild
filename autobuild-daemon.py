@@ -225,7 +225,7 @@ class Overview:
         if status == "Building":
             return "Building"
         elif status == "Built":
-            return '<span class="success">Built</span> (<a href="/products?chroot=%s&repo=%s)' % (chroot, repo)
+            return '<span class="success">Built</span> (<a href="/products?chroot=%s&repo=%s">products</a>)' % (chroot, repo)
         elif status == "Failed":
             return '<span class="failure">Failed</span>'
         else:
