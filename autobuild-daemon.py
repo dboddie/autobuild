@@ -11,7 +11,8 @@ urls = ("/", "Overview",
         "/repos", "Repos",
         "/chroots", "Chroots",
         "/build", "Build",
-        "/products", "Products")
+        "/products", "Products",
+        "/product", "Product")
 
 class Base:
 
@@ -187,6 +188,33 @@ class Products(Base):
         
         t = web.template.Template(self.template)
         return t("Products", chroot, repo, products)
+
+class Product(Base):
+
+    def GET(self):
+    
+        q = self.get_query()
+        
+        chroot = q.get("chroot")
+        file_name = q.get("file")
+        if not chroot or not file_name:
+            raise web.notfound()
+        
+        return self.product(chroot[0], file_name[0])
+
+    def product(self, chroot, file_name):
+
+        c = config.Config(Chroots.config)
+        b = builder.Builder(c)
+        
+        try:
+            info = b.info(chroot)
+        except KeyError:
+            raise notfound("No such chroot")
+        
+        file_path = os.path.join(info["hooks"], file_name)
+
+        return open(file_path, "rb").read()
 
 class Overview:
 

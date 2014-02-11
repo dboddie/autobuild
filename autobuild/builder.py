@@ -150,7 +150,12 @@ class Builder:
         hooks_dir = os.path.join(install_dir, label, "hooks")
         products_dir = os.path.join(install_dir, label, "cache", "result")
         
-        return template, install_dir, distribution, pbuilderrc, hooks_dir, products_dir
+        return {"template": template,
+                "installation": install_dir,
+                "distribution": distribution,
+                "configuration": pbuilderrc,
+                "hooks": hooks_dir,
+                "products": products_dir}
     
     def hooks(self, label):
     

@@ -38,12 +38,12 @@ if __name__ == "__main__":
             info = run(builder.info, sys.argv[2:3])
 
             print sys.argv[2]
-            print "Template:          ", info[0]
-            print "Installation:      ", info[1]
-            print "Distribution:      ", info[2]
-            print "Configuration file:", info[3]
-            print "Hooks directory:   ", info[4]
-            print "Products directory:", info[5]
+            print "Template:          ", info["template"]
+            print "Installation:      ", info["installation"]
+            print "Distribution:      ", info["distribution"]
+            print "Configuration file:", info["configuration"]
+            print "Hooks directory:   ", info["hooks"]
+            print "Products directory:", info["products"]
             sys.exit()
         
         elif command == "hooks" and len(sys.argv) == 3:
