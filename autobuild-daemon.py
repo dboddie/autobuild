@@ -119,7 +119,11 @@ class Build:
         pid = os.fork()
         if pid == 0:
             # Child process (pid is 0)
-            result = os.system("sudo autobuild-builder.py debuild" + commands.mkarg(chroot) + "1> /dev/null 2> /dev/null")
+            stdout_path = path + ".stdout"
+            stderr_path = path + ".stderr"
+            result = os.system("sudo autobuild-builder.py debuild" + commands.mkarg(chroot) + \
+                               " 1> " + commands.mkarg(stdout_path) + \
+                               " 2> " + commands.mkarg(stderr_path))
             processes.remove_lockfile(path)
             sys.exit(result)
         else:
