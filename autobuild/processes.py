@@ -6,7 +6,7 @@ def claim_process(chroot, repo):
     c = config.Config("autobuild-building", load = False)
     f = open(c.path)
     c.lock(f)
-    c._load()
+    c._load(f)
 
     label = chroot + "-" + repo
 
@@ -33,7 +33,7 @@ def claim_process(chroot, repo):
         pass
 
     c.add(label, ["None"])
-    c._save()
+    c._save(f)
     c.unlock(f)
     f.close()
     return True
@@ -43,11 +43,11 @@ def update_process(chroot, repo, pid):
     c = config.Config("autobuild-building", load = False)
     f = open(c.path, "w")
     c.lock(f)
-    c._load()
+    c._load(f)
 
     label = chroot + "-" + repo
     c.remove(label)
     c.add(label, [pid])
-    c._save()
+    c._save(f)
     c.unlock(f)
     f.close()
