@@ -26,10 +26,11 @@ def claim_process(chroot, repo):
         # No label exists, so continue with the process.
         pass
 
-    return f
+    return c, f
 
-def update_process(f, chroot, repo, pid):
+def update_process(cf, chroot, repo, pid):
 
+    c, f = cf
     label = chroot + "-" + repo
     c.remove(label)
     c.add(label, [pid])

@@ -108,8 +108,8 @@ class Build:
             raise web.notfound()
         
         # Check for an existing process and reserve space for a new one.
-        f = processes.claim_process(chroot, repo)
-        if not f:
+        cf = processes.claim_process(chroot, repo)
+        if not cf:
             raise web.notfound("Not starting build")
         
         current_dir = os.path.abspath(os.curdir)
@@ -121,7 +121,7 @@ class Build:
             sys.exit(os.system("sudo autobuild-builder.py debuild" + commands.mkarg(chroot) + "1> /dev/null 2> /dev/null"))
         else:
             # Parent process (pid is child pid)
-            processes.update_process(f, chroot, repo, pid)
+            processes.update_process(cf, chroot, repo, pid)
 
         os.chdir(current_dir)
 
