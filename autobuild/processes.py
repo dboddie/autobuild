@@ -40,7 +40,7 @@ def status(chroot, repo):
 
     if os.path.exists(path):
         if os.path.exists(result_path):
-            result = open(result_path).read()
+            result = open(result_path).read().strip()
             if result == "0":
                 return '<span style="success">Built</span>'
             else:
