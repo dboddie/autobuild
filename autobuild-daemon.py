@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import cgi, commands, lockfile, os, subprocess, sys
+import cgi, commands, os, subprocess, sys
 import daemon
 import web
 
@@ -107,13 +107,8 @@ class Build:
         except KeyError:
             raise web.notfound()
         
-        path = os.path.join(os.getenv("HOME"), ".autobuild-building")
-        lock = lockfile.FileLock(path)
-        lock.acquire()
-        
         # Check for an existing process and reserve space for a new one.
         if not processes.claim_process(lock, chroot, repo):
-            lock.release()
             raise web.notfound("Not starting build")
         
         current_dir = os.path.abspath(os.curdir)
@@ -126,7 +121,6 @@ class Build:
         else:
             # Parent process (pid is child pid)
             processes.update_process(lock, chroot, repo, pid)
-            lock.release()
 
         os.chdir(current_dir)
 
