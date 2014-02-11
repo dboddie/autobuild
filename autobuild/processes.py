@@ -1,4 +1,4 @@
-import fcntl, os
+import os
 import config
 
 def claim_process(chroot, repo):

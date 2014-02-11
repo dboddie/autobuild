@@ -1,4 +1,4 @@
-import os, sys
+import fcntl, os, sys
 
 class Config:
 
