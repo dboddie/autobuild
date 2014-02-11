@@ -1,29 +1,22 @@
-import os, shutil, stat, tempfile
+import os, shutil, stat
 
-class Manager:
-
-    def __init__(self):
-
-        self.temp_dir = tempfile.mkdtemp()
+temp_dir = "/tmp"
     
-    def __del__(self):
+def claim_process(chroot, repo):
 
-        shutil.rmtree(temp_dir)
+    label = chroot + "-" + repo
+    
+    # Try to create a file.
+    path = os.path.join(temp_dir, label)
+    try:
+        os.mknod(path, 0644, stat.S_IFREG)
 
-    def claim_process(self, chroot, repo):
+    except OSError:
+        return None
     
-        label = chroot + "-" + repo
-        
-        # Try to create a file.
-        path = os.path.join(self.temp_dir, label)
-        try:
-            os.mknod(path, 0644, stat.S_IFREG)
+    return path
 
-        except OSError:
-            return None
-        
-        return path
-    
-    def update_process(self, path, pid):
-    
-        open(path, "w").write(str(pid))
+def update_process(path, pid):
+
+    open(path, "w").write(str(pid))
+
