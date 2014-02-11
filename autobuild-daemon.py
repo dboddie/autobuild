@@ -13,8 +13,8 @@ urls = ("/update", "Update",
 
 class Update:
 
-    done_template = ("$def with (name)\n"
-                     "Updated $name.")
+    done_template = ("$def with (repo)\n"
+                     "Updated $repo.")
     
     def POST(self):
     
@@ -23,20 +23,20 @@ class Update:
         else:
             q = {}
 
-        name = q.get("name")
-        if not name:
+        repo = q.get("repo")
+        if not repo:
             raise web.notfound()
         else:
-            name = name[0]
+            repo = repo[0]
         
-        return self.update(name)
+        return self.update(repo)
 
-    def update(self, name):
+    def update(self, repo):
 
-        s = subprocess.Popen(["autobuild-repo.py", "update", name])
+        s = subprocess.Popen(["autobuild-repo.py", "update", repo])
         if s.wait() == 0:
             t = web.template.Template(self.done_template)
-            return t(name)
+            return t(repo)
         else:
             raise web.notfound()
 
