@@ -4,7 +4,10 @@ import config
 def claim_process(chroot, repo):
 
     c = config.Config("autobuild-building", load = False)
-    f = open(c.path)
+    if not os.path.exists(c.path):
+        open(c.path, "w").write("")
+
+    f = open(c.path, "r+w")
     c.lock(f)
     c._load(f)
 
@@ -22,8 +25,9 @@ def claim_process(chroot, repo):
             f.close()
             return None
 
-    except (KeyError, ValueError):
-        # No label exists, so continue with the process.
+    except (KeyError, OSError, ValueError):
+        # No label exists, the child process is missing, or the
+        # pid is invalid, so continue with the process.
         pass
 
     return c, f
