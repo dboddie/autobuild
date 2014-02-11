@@ -147,8 +147,8 @@ class Overview:
     done_template = ("$def with (title, chroots, repos, status)\n"
                      "<html>\n<head><title>$title</title>\n"
                      '<style type="text/css">\n'
-                     '  .success { text-color: green }\n'
-                     '  .failure { text-color: red }\n'
+                     '  .success { color: green }\n'
+                     '  .failure { color: red }\n'
                      '</style>\n'
                      "</head>\n"
                      "<body>\n"
