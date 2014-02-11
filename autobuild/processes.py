@@ -1,42 +1,29 @@
-import os
-import config
+import os, shutil, stat, tempfile
 
-def claim_process(chroot, repo):
+class Manager:
 
-    c = config.Config("autobuild-building", load = False)
-    if not os.path.exists(c.path):
-        open(c.path, "w").write("")
+    def __init__(self):
 
-    f = open(c.path, "r+w")
-    c.lock(f)
-    c._load(f)
+        self.temp_dir = tempfile.mkdtemp()
+    
+    def __del__(self):
 
-    label = chroot + "-" + repo
+        shutil.rmtree(temp_dir)
 
-    try:
-        [pid] = c.lines[label]
+    def claim_process(self, chroot, repo):
+    
+        label = chroot + "-" + repo
+        
+        # Try to create a file.
+        path = os.path.join(self.temp_dir, label)
+        try:
+            os.mknod(path, 0644, stat.S_IFREG)
 
-        pid = int(pid)
-
-        pid_status = os.waitpid(pid, os.WNOHANG)
-        if pid_status == (0, 0):
-            # Still running/no information.
-            c.unlock(f)
-            f.close()
+        except OSError:
             return None
-
-    except (KeyError, OSError, ValueError):
-        # No label exists, the child process is missing, or the
-        # pid is invalid, so continue with the process.
-        pass
-
-    return c, f
-
-def update_process(cf, chroot, repo, pid):
-
-    c, f = cf
-    label = chroot + "-" + repo
-    c.add(label, [str(pid)])
-    c._save(f)
-    c.unlock(f)
-    f.close()
+        
+        return path
+    
+    def update_process(self, path, pid):
+    
+        open(path, "w").write(str(pid))
