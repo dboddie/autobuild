@@ -13,12 +13,6 @@ def claim_process(chroot, repo):
     try:
         [pid] = c.lines[label]
 
-        if pid == "None":
-            # Another process is being set up.
-            c.unlock(f)
-            f.close()
-            return False
-
         pid = int(pid)
 
         pid_status = os.waitpid(pid, os.WNOHANG)
@@ -26,24 +20,15 @@ def claim_process(chroot, repo):
             # Still running/no information.
             c.unlock(f)
             f.close()
-            return False
+            return None
 
-    except KeyError:
+    except (KeyError, ValueError):
         # No label exists, so continue with the process.
         pass
 
-    c.add(label, ["None"])
-    c._save(f)
-    c.unlock(f)
-    f.close()
-    return True
+    return f
 
-def update_process(chroot, repo, pid):
-
-    c = config.Config("autobuild-building", load = False)
-    f = open(c.path, "w")
-    c.lock(f)
-    c._load(f)
+def update_process(f, chroot, repo, pid):
 
     label = chroot + "-" + repo
     c.remove(label)
