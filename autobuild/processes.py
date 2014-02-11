@@ -51,9 +51,3 @@ def update_process(chroot, repo, pid):
     c._save()
     c.unlock()
     f.close()
-
-def unlock():
-
-    path = os.path.join(os.getenv("HOME"), ".autobuild-building")
-    f = open(path
-    fcntl.flock(
