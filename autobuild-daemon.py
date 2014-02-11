@@ -168,7 +168,7 @@ class Overview:
         
         t = web.template.Template(self.done_template)
         t.content_type = "text/html"
-        return t(self.title, labels, chroots, processes.is_building)
+        return t("Overview", labels, chroots, processes.is_building)
 
 
 if __name__ == "__main__":
