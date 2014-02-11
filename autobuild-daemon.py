@@ -119,12 +119,18 @@ class Build:
         
         pid = os.fork()
         if pid == 0:
+
             # Child process (pid is 0)
-            stdout_path = path + ".stdout"
-            stderr_path = path + ".stderr"
+            stdout_path, stderr_path, result_path = processes.output_paths(path)
+            for p in stdout_path, stderr_path, result_path:
+                if os.path.exists(p):
+                    os.remove(p)
+            
             result = os.system("sudo autobuild-builder.py debuild" + commands.mkarg(chroot) + \
                                " 1> " + commands.mkarg(stdout_path) + \
                                " 2> " + commands.mkarg(stderr_path))
+
+            open(result_path, "w").write(str(result))
             processes.remove_lockfile(path)
             sys.exit(result)
         else:
@@ -138,8 +144,13 @@ class Build:
 
 class Overview:
 
-    done_template = ("$def with (title, chroots, repos, building)\n"
-                     "<html>\n<head><title>$title</title></head>\n"
+    done_template = ("$def with (title, chroots, repos, status)\n"
+                     "<html>\n<head><title>$title</title>\n"
+                     '<style type="text/css">\n'
+                     '  .success { text-color: green }\n'
+                     '  .failure { text-color: red }\n'
+                     '</style>\n'
+                     "</head>\n"
                      "<body>\n"
                      "<h1>$title</h1>\n"
                      "<table>\n"
@@ -152,7 +163,7 @@ class Overview:
                      "    <tr>\n"
                      "    <th>$repo</th>\n"
                      "    $for chroot in chroots:\n"
-                     "        <td>$building(chroot, repo)</td>\n"
+                     "        <td>$status(chroot, repo)</td>\n"
                      "    </tr>\n"
                      "</table>\n"
                      "</body>\n</html>\n")
@@ -168,7 +179,7 @@ class Overview:
         
         t = web.template.Template(self.done_template)
         t.content_type = "text/html"
-        return t("Overview", chroots, repos, processes.is_building)
+        return t("Overview", chroots, repos, processes.status)
 
 
 if __name__ == "__main__":
