@@ -36,7 +36,6 @@ def update_process(cf, chroot, repo, pid):
 
     c, f = cf
     label = chroot + "-" + repo
-    c.remove(label)
     c.add(label, [str(pid)])
     c._save(f)
     c.unlock(f)
