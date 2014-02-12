@@ -125,7 +125,7 @@ class Build(Base):
 
         # Create a snapshot of the latest revision of the repository.
         snapshot_dir = tempfile.mkdtemp()
-        result = os.system("autobuild-repo snapshot " + command.mkarg(repo) + " " + command.mkarg(snapshot_dir))
+        result = os.system("autobuild-repo snapshot " + commands.mkarg(repo) + " " + commands.mkarg(snapshot_dir))
 
         if result != 0:
             # Remove the snapshot directory if a snapshot couldn't be created.
