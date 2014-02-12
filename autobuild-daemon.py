@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import cgi, commands, os, subprocess, sys
+import cgi, commands, os, shutil, subprocess, sys, tempfile
 import daemon
 import web
 
@@ -122,7 +122,18 @@ class Build(Base):
             raise web.notfound("Not starting build")
         
         current_dir = os.path.abspath(os.curdir)
-        os.chdir(repo_path)
+
+        # Create a snapshot of the latest revision of the repository.
+        snapshot_dir = tempfile.mkdtemp()
+        result = os.system("autobuild-repo snapshot " + command.mkarg(repo) + " " + command.mkarg(snapshot_dir))
+
+        if result != 0:
+            # Remove the snapshot directory if a snapshot couldn't be created.
+            shutil.rmtree(snapshot_dir)
+            raise notfound("Failed to create a snapshot")
+        
+        # Enter the snapshot directory.
+        os.chdir(os.path.join(snapshot_dir, "snapshot"))
         
         pid = os.fork()
         if pid == 0:
@@ -133,12 +144,15 @@ class Build(Base):
                 if os.path.exists(p):
                     os.remove(p)
             
-            result = os.system("autobuild-builder.py debuild" + commands.mkarg(chroot) + \
+            result = os.system("autobuild-builder.py debuild " + commands.mkarg(chroot) + \
                                " 1> " + commands.mkarg(stdout_path) + \
                                " 2> " + commands.mkarg(stderr_path))
 
             open(result_path, "w").write(str(result))
+
+            # Remove the lock file and delete the snapshot directory.
             processes.remove_lockfile(path)
+            shutil.rmtree(snapshot_dir)
             sys.exit(result)
         else:
             # Parent process (pid is child pid)
