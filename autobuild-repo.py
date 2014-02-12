@@ -97,7 +97,8 @@ if __name__ == "__main__":
                                    "-o " + commands.mkarg(archive_path) + " HEAD")
                 # Unpack the archive into the snapshot directory.
                 os.chdir(snapshot_parent_dir)
-                result = os.system("unzip " + commands.mkarg(archive_path))
+                result = os.system("unzip " + commands.mkarg(archive_path) + \
+                                   " 1> /dev/null 2> /dev/null")
                 # Remove the archive.
                 os.remove(archive_path)
             elif os.path.exists(os.path.join(path, ".svn")):
