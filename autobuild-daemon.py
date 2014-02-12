@@ -151,15 +151,16 @@ class Build(Base):
 
 class Products(Base):
 
-    template = ("$def with (title, chroot, repo, products)\n"
+    template = ("$def with (title, chroot, repo, packages)\n"
                 "<html>\n<head><title>$title</title></head>\n"
                 "<body>\n"
                 "<h1>$title</h1>\n"
                 "<dl>\n"
-                "$for product in products:\n"
-                "    <dt>$product['Source']</dt>\n"
-                "    $for file in product['Files']:\n"
-                '        <dd><a href="$("/product?chroot=%s&file=%s" % (chroot, file["name"]))">$file["name"]</a></dd>\n'
+                "$for (name, version), products in packages:\n"
+                "    <dt>$name $version</dt>\n"
+                "    $for product in products:\n"
+                "        $for file in product['Files']:\n"
+                '            <dd><a href="$("/product?chroot=%s&file=%s" % (chroot, file["name"]))">$file["name"]</a></dd>\n'
                 "</dl>\n"
                 "</body>\n</html>\n")
     
@@ -184,13 +185,15 @@ class Products(Base):
         except KeyError:
             raise notfound("No such chroot")
         
-        products = filter(lambda product: product["Source"].startswith(repo), products)
-        product_dict = {}
-        for product in products:
-            product_dict[(product["Source"], product["Version"])] = product
+        keys = filter(lambda key: key[0].startswith(repo), products.keys())
+        keys.sort()
+        
+        p = []
+        for key in keys:
+            p.append((key, products[key]))
         
         t = web.template.Template(self.template)
-        return t("Products", chroot, repo, product_dict.values())
+        return t("Products", chroot, repo, p)
 
 class Product(Base):
 

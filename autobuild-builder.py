@@ -53,13 +53,10 @@ if __name__ == "__main__":
         elif command == "products" and len(sys.argv) == 3:
         
             products = run(builder.products, sys.argv[2:3])
-            items = set()
-            for product in products:
-                items.add((product["Source"], product["Version"]))
-            
-            items = list(items)
-            items.sort()
-            for name, version in items:
+            keys = products.keys()
+            keys.sort()
+
+            for name, version in keys:
                 print name, version
 
             sys.exit()

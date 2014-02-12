@@ -197,22 +197,25 @@ class Builder:
         template, install_dir, distribution, pbuilderrc = self.config.lines[label]
         products_dir = os.path.join(install_dir, label, "cache", "result")
         
-        products = []
+        products = {}
+
         for dsc_path in glob.glob(os.path.join(products_dir, "*.dsc")):
             dsc = Dsc(open(dsc_path).read())
-            products.append(dsc)
+            products.setdefault((dsc["Source"], dsc["Version"]), []).append(dsc)
         
         for changes_path in glob.glob(os.path.join(products_dir, "*.changes")):
             changes = Changes(open(changes_path).read())
-            products.append(changes)
+
+            l = products.setdefault((changes["Source"], changes["Version"]), [])
+            l.append(changes)
             
             # Append a dictionary describing the changes file itself to the list
             # of products.
-            products.append({"Source": changes["Source"],
-                             "Version": changes["Version"],
-                             "Files": [{"name": os.path.split(changes_path)[1],
-                                        "md5sum": md5.md5(open(changes_path, "rb").read()).hexdigest(),
-                                        "size": os.stat(changes_path)[stat.ST_SIZE]}]})
+            l.append({"Source": changes["Source"],
+                      "Version": changes["Version"],
+                      "Files": [{"name": os.path.split(changes_path)[1],
+                                 "md5sum": md5.md5(open(changes_path, "rb").read()).hexdigest(),
+                                 "size": os.stat(changes_path)[stat.ST_SIZE]}]})
         
         return products
     
