@@ -125,12 +125,12 @@ class Build(Base):
 
         # Create a snapshot of the latest revision of the repository.
         snapshot_dir = tempfile.mkdtemp()
-        result = os.system("autobuild-repo snapshot " + commands.mkarg(repo) + " " + commands.mkarg(snapshot_dir))
+        result = os.system("autobuild-repo.py snapshot " + commands.mkarg(repo) + " " + commands.mkarg(snapshot_dir))
 
         if result != 0:
             # Remove the snapshot directory if a snapshot couldn't be created.
             shutil.rmtree(snapshot_dir)
-            raise notfound("Failed to create a snapshot")
+            raise web.notfound("Failed to create a snapshot")
         
         # Enter the snapshot directory.
         os.chdir(os.path.join(snapshot_dir, "snapshot"))
