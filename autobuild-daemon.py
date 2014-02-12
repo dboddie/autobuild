@@ -166,10 +166,6 @@ class Build(Base):
                                " 2> " + commands.mkarg(stderr_path))
 
             open(result_path, "w").write(str(result))
-            
-            b = builder.Builder(build_conf)
-            products_dir = b.info(chroot)["products"]
-            shutil.move(os.path.join(snapshot_dir, snapshot_archive), os.path.join(products_dir, snapshot_archive))
 
             # Remove the lock file and delete the snapshot directory.
             processes.remove_lockfile(path)
