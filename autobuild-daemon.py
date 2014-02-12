@@ -127,7 +127,8 @@ class Build(Base):
         # Read the changelog for the project in the repository.
         changelog_path = os.path.join(repo_path, "debian", "changelog")
         ch = Changelog(open(changelog_path))
-        snapshot_name = ch.package + "_" + ch.upstream_version
+        snapshot_name = ch.package + "-" + ch.upstream_version
+        snapshot_archive_name = ch.package + "_" + ch.upstream_version
 
         # Create a snapshot of the latest revision of the repository.
         snapshot_dir = tempfile.mkdtemp()
@@ -142,7 +143,7 @@ class Build(Base):
         
         # Create an archive of the snapshot.
         os.chdir(snapshot_dir)
-        snapshot_archive = snapshot_name + ".orig.tar.gz"
+        snapshot_archive = snapshot_archive_name + ".orig.tar.gz"
         result = os.system("tar zcf " + snapshot_archive + " " + snapshot_name)
         if result != 0:
             # Remove the snapshot directory if a snapshot archive couldn't be created.
