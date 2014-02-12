@@ -201,6 +201,10 @@ class Builder:
         for dsc_path in glob.glob(os.path.join(products_dir, "*.dsc")):
             dsc = Dsc(open(dsc_path).read())
             products.append(dsc)
+        
+        for changes_path in glob.glob(os.path.join(products_dir, "*.changes")):
+            changes = Changes(open(changes_path).read())
+            products.append(changes)
 
         return products
     

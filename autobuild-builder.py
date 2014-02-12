@@ -52,8 +52,16 @@ if __name__ == "__main__":
         
         elif command == "products" and len(sys.argv) == 3:
         
-            for dsc in run(builder.products, sys.argv[2:3]):
-                print dsc["Source"], dsc["Version"]
+            products = run(builder.products, sys.argv[2:3])
+            items = set()
+            for product in products:
+                items.add((product["Source"], product["Version"]))
+            
+            items = list(items)
+            items.sort()
+            for name, version in items:
+                print name, version
+
             sys.exit()
         
         elif command == "list" and len(sys.argv) == 2:
