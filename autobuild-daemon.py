@@ -140,6 +140,15 @@ class Build(Base):
             shutil.rmtree(snapshot_dir)
             raise web.notfound("Failed to create a snapshot")
         
+        # Create an archive of the snapshot.
+        os.chdir(snapshot_dir)
+        snapshot_archive = snapshot_name + ".orig.tar.gz"
+        result = os.system("tar zcf " + snapshot_archive + " " + snapshot_name)
+        if result != 0:
+            # Remove the snapshot directory if a snapshot archive couldn't be created.
+            shutil.rmtree(snapshot_dir)
+            raise web.notfound("Failed to create a snapshot archive")
+
         # Enter the snapshot directory.
         os.chdir(snapshot_subdir)
         
@@ -157,6 +166,10 @@ class Build(Base):
                                " 2> " + commands.mkarg(stderr_path))
 
             open(result_path, "w").write(str(result))
+            
+            b = builder.Builder(build_conf)
+            products_dir = b.info()["products"]
+            shutil.move(os.path.join(snapshot_dir, snapshot_archive), os.path.join(products_dir, snapshot_archive))
 
             # Remove the lock file and delete the snapshot directory.
             processes.remove_lockfile(path)
