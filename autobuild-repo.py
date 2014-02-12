@@ -89,17 +89,21 @@ if __name__ == "__main__":
             # command.
             os.chdir(path)
             if os.path.exists(os.path.join(path, ".git")):
-                # Export the latest revision to an archive.
-                archive_path = os.path.join(snapshot_dir, "latest.zip")
-                result = os.system("git archive --prefix=snapshot/ -o " + commands.mkarg(archive_path) + " HEAD")
+                # Export the latest revision to an archive into the parent
+                # directory of the snapshot directory.
+                snapshot_parent_dir, snapshot_name = os.path.split(snapshot_dir)
+                archive_path = os.path.join(snapshot_parent_dir, snapshot_name + ".zip")
+                result = os.system("git archive --prefix=" + snapshot_name + "/ " + \
+                                   "-o " + commands.mkarg(archive_path) + " HEAD")
                 # Unpack the archive into the snapshot directory.
-                os.chdir(snapshot_dir)
+                os.chdir(snapshot_parent_dir)
                 result = os.system("unzip " + commands.mkarg(archive_path))
                 # Remove the archive.
                 os.remove(archive_path)
             elif os.path.exists(os.path.join(path, ".svn")):
-                # Export the latest revision into the snapshot directory.
-                result = os.system("svn export . " + commands.mkarg(os.path.join(snapshot_dir, "snapshot")))
+                # Export the latest revision into the snapshot directory,
+                # which will be created by svn.
+                result = os.system("svn export . " + commands.mkarg(snapshot_dir))
             else:
                 result = -1
             

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import cgi, commands, os, shutil, subprocess, sys, tempfile
+from debian.changelog import Changelog
 import daemon
 import web
 
@@ -123,9 +124,16 @@ class Build(Base):
         
         current_dir = os.path.abspath(os.curdir)
 
+        # Read the changelog for the project in the repository.
+        changelog_path = os.path.join(repo_path, "debian", "changelog")
+        ch = Changelog(open(changelog_path))
+        snapshot_name = ch.package + "_" + ch.upstream_version
+
         # Create a snapshot of the latest revision of the repository.
         snapshot_dir = tempfile.mkdtemp()
-        result = os.system("autobuild-repo.py snapshot " + commands.mkarg(repo) + " " + commands.mkarg(snapshot_dir))
+        snapshot_subdir = os.path.join(snapshot_dir, snapshot_name)
+        result = os.system("autobuild-repo.py snapshot " + commands.mkarg(repo) + " " + \
+                           commands.mkarg(snapshot_subdir))
 
         if result != 0:
             # Remove the snapshot directory if a snapshot couldn't be created.
@@ -133,7 +141,7 @@ class Build(Base):
             raise web.notfound("Failed to create a snapshot")
         
         # Enter the snapshot directory.
-        os.chdir(os.path.join(snapshot_dir, "snapshot"))
+        os.chdir(snapshot_subdir)
         
         pid = os.fork()
         if pid == 0:
@@ -165,16 +173,15 @@ class Build(Base):
 
 class Products(Base):
 
-    template = ("$def with (title, chroot, repo, packages)\n"
+    template = ("$def with (title, chroot, repo, products)\n"
                 "<html>\n<head><title>$title</title></head>\n"
                 "<body>\n"
                 "<h1>$title</h1>\n"
                 "<dl>\n"
-                "$for (name, version), products in packages:\n"
+                "$for (name, version), files in products:\n"
                 "    <dt>$name $version</dt>\n"
-                "    $for product in products:\n"
-                "        $for file in product['Files']:\n"
-                '            <dd><a href="$("/product?chroot=%s&file=%s" % (chroot, file["name"]))">$file["name"]</a></dd>\n'
+                "    $for file in files:\n"
+                '        <dd><a href="$("/product?chroot=%s&file=%s" % (chroot, file["name"]))">$file["name"]</a></dd>\n'
                 "</dl>\n"
                 "</body>\n</html>\n")
     
@@ -204,7 +211,13 @@ class Products(Base):
         
         p = []
         for key in keys:
-            p.append((key, products[key]))
+            files = {}
+            for product in products[key]:
+                for file in product["Files"]:
+                    files[file["name"]] = file
+            files = files.values()
+            files.sort()
+            p.append((key, files))
         
         t = web.template.Template(self.template)
         return t("Products", chroot, repo, p)
