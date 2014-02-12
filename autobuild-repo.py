@@ -74,6 +74,43 @@ if __name__ == "__main__":
             
             sys.exit()
     
+        elif command == "snapshot" and len(sys.argv) == 4:
+        
+            label = sys.argv[2]
+            snapshot_dir = sys.argv[3]
+            
+            # Check to see if the label already exists.
+            config.check_label(label)
+            
+            [path] = config.lines[label]
+            
+            # Unpack the current sources from the repository in the path specified
+            # to the snapshot directory by running the appropriate version control
+            # command.
+            os.chdir(path)
+            if os.path.exists(os.path.join(path, ".git")):
+                # Export the latest revision to an archive.
+                fh, archive_path = tempfile.mkstemp(suffix=".zip")
+                result = os.system("git archive -o " + commands.mkarg(archive_path) + " HEAD")
+                # Unpack the archive into the snapshot directory.
+                os.chdir(snapshot_dir)
+                result = os.system("unzip " + commands.mkarg(archive_path))
+                # Remove the archive.
+                os.remove(archive_path)
+            elif os.path.exists(os.path.join(path, ".svn")):
+                # Export the latest revision into the snapshot directory.
+                result = os.system("svn export . " + commands.mkarg(snapshot_dir))
+            else:
+                result = -1
+            
+            if result == 0:
+                print "Repository '%s' updated successfully." % label
+            else:
+                sys.stderr.write("Failed to update repository '%s'.\n" % label)
+                sys.exit(1)
+            
+            sys.exit()
+    
         elif command == "list" and len(sys.argv) == 2:
         
             labels = config.lines.keys()
@@ -98,6 +135,7 @@ if __name__ == "__main__":
     sys.stderr.write("Usage: %s add <label> <path>\n" % sys.argv[0])
     sys.stderr.write("       %s remove <label>\n" % sys.argv[0])
     sys.stderr.write("       %s update <label>\n" % sys.argv[0])
+    sys.stderr.write("       %s snapshot <label> <path>\n" % sys.argv[0])
     sys.stderr.write("       %s list\n" % sys.argv[0])
     sys.stderr.write("       %s info <label>\n" % sys.argv[0])
     sys.exit(1)
