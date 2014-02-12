@@ -7,7 +7,11 @@ from autobuild.builder import Builder
 def run(function, arguments):
 
     try:
-        return function(*arguments)
+        result = function(*arguments)
+        if result != 0:
+            return 1
+        else:
+            return 0
     
     except:
         sys.stderr.write(traceback.format_exc() + "\n")
