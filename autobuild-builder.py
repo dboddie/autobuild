@@ -7,16 +7,19 @@ from autobuild.builder import Builder
 def run(function, arguments):
 
     try:
-        result = function(*arguments)
-        if result != 0:
-            return 1
-        else:
-            return 0
+        return function(*arguments)
     
     except:
         sys.stderr.write(traceback.format_exc() + "\n")
         sys.exit(1)
 
+def run_result(function, arguments):
+
+    result = run(function, arguments)
+    if result != 0:
+        return 1
+    else:
+        return 0
 
 if __name__ == "__main__":
 
@@ -27,7 +30,7 @@ if __name__ == "__main__":
         
         if command == "create" and len(sys.argv) == 6:
         
-            sys.exit(run(builder.create, sys.argv[2:]))
+            sys.exit(run_result(builder.create, sys.argv[2:]))
         
         elif command == "destroy" and len(sys.argv) == 3:
         
@@ -73,11 +76,11 @@ if __name__ == "__main__":
         
         elif command == "build" and len(sys.argv) == 4:
         
-            sys.exit(run(builder.build, sys.argv[2:4]))
+            sys.exit(run_result(builder.build, sys.argv[2:4]))
         
         elif command == "debuild" and len(sys.argv) == 3:
         
-            sys.exit(run(builder.debuild, sys.argv[2:3]))
+            sys.exit(run_result(builder.debuild, sys.argv[2:3]))
         
         elif command == "remove" and len(sys.argv) == 4:
         

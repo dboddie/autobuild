@@ -94,7 +94,8 @@ class Builder:
         write_file(pbuilderrc, text)
         
         # Create the chroot by running pbuilder.
-        if os.system("pbuilder create --configfile " + commands.mkarg(pbuilderrc)) == 0:
+        result = os.system("pbuilder create --configfile " + commands.mkarg(pbuilderrc))
+        if result == 0:
         
             # Reopen the configuration file. Really, we should lock the
             # configuration file to prevent others from modifying the file
@@ -107,6 +108,8 @@ class Builder:
         else:
             # Remove the incomplete installation directory.
             remove_dir(install_label_dir)
+
+        return result
             
     def destroy(self, label):
     
