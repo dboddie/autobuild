@@ -184,10 +184,13 @@ class Products(Base):
         except KeyError:
             raise notfound("No such chroot")
         
-        products = filter(lambda dsc: dsc["Source"].startswith(repo), products)
+        products = filter(lambda product: product["Source"].startswith(repo), products)
+        product_dict = {}
+        for product in products:
+            product_dict[(product["Source"], product["Version"])] = product
         
         t = web.template.Template(self.template)
-        return t("Products", chroot, repo, products)
+        return t("Products", chroot, repo, products.values())
 
 class Product(Base):
 
