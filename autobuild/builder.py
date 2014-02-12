@@ -235,13 +235,14 @@ class Builder:
         
             # Assume that the other source artifacts are available and just
             # run pbuilder.
-            if os.system("pbuilder build --configfile " + \
-                         commands.mkarg(pbuilderrc) + " " + \
-                         commands.mkarg(name)) == 0:
-            
+            result = os.system("pbuilder build --configfile " + \
+                               commands.mkarg(pbuilderrc) + " " + \
+                               commands.mkarg(name))
+            if result == 0:
                 products_dir = os.path.join(install_dir, label, "cache", "result")
                 print "Build products can be found in", products_dir
-        
+            
+            return result
         else:
             # Try to obtain a source package for the given name.
             directory = tempfile.mkdtemp()
@@ -249,17 +250,19 @@ class Builder:
             
             os.chdir(directory)
             print "Fetching source in", directory
-            if os.system("apt-get source " + commands.mkarg(name)) == 0:
+            result = os.system("apt-get source " + commands.mkarg(name))
+            if result == 0:
             
-                if os.system("pbuilder build --configfile " + \
-                             commands.mkarg(pbuilderrc) + " *.dsc") == 0:
-                
+                result = os.system("pbuilder build --configfile " + \
+                                   commands.mkarg(pbuilderrc) + " *.dsc")
+                if result == 0:
                     products_dir = os.path.join(install_dir, label, "cache", "result")
                     print "Build products can be found in", products_dir
             
             # Clean up.
             remove_dir(directory)
             os.chdir(old_directory)
+            return result
     
     def debuild(self, label):
     
@@ -269,11 +272,14 @@ class Builder:
         
         # Assume that we are in a package source directory and run pdebuild,
         # passing pbuilder options after the -- separator.
-        if os.system("pdebuild -- --configfile " + \
-                     commands.mkarg(pbuilderrc)) == 0:
+        result = os.system("pdebuild -- --configfile " + \
+                           commands.mkarg(pbuilderrc))
+        if result == 0:
         
             products_dir = os.path.join(install_dir, label, "cache", "result")
             print "Build products can be found in", products_dir
+
+        return result
     
     def remove(self, label, name):
     

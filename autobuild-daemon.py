@@ -133,7 +133,7 @@ class Build(Base):
                 if os.path.exists(p):
                     os.remove(p)
             
-            result = os.system("sudo autobuild-builder.py debuild" + commands.mkarg(chroot) + \
+            result = os.system("autobuild-builder.py debuild" + commands.mkarg(chroot) + \
                                " 1> " + commands.mkarg(stdout_path) + \
                                " 2> " + commands.mkarg(stderr_path))
 
