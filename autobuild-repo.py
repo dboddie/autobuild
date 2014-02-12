@@ -90,8 +90,8 @@ if __name__ == "__main__":
             os.chdir(path)
             if os.path.exists(os.path.join(path, ".git")):
                 # Export the latest revision to an archive.
-                fh, archive_path = tempfile.mkstemp(suffix=".zip")
-                result = os.system("git archive -o " + commands.mkarg(archive_path) + " HEAD")
+                archive_path = os.path.join(snapshot_dir, "latest.zip")
+                result = os.system("git archive --prefix=snapshot/ -o " + commands.mkarg(archive_path) + " HEAD")
                 # Unpack the archive into the snapshot directory.
                 os.chdir(snapshot_dir)
                 result = os.system("unzip " + commands.mkarg(archive_path))
@@ -99,7 +99,7 @@ if __name__ == "__main__":
                 os.remove(archive_path)
             elif os.path.exists(os.path.join(path, ".svn")):
                 # Export the latest revision into the snapshot directory.
-                result = os.system("svn export . " + commands.mkarg(snapshot_dir))
+                result = os.system("svn export . " + commands.mkarg(os.path.join(snapshot_dir, "snapshot")))
             else:
                 result = -1
             
