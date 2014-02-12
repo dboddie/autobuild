@@ -190,7 +190,7 @@ class Products(Base):
             product_dict[(product["Source"], product["Version"])] = product
         
         t = web.template.Template(self.template)
-        return t("Products", chroot, repo, products.values())
+        return t("Products", chroot, repo, product_dict.values())
 
 class Product(Base):
 
