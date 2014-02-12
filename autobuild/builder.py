@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import commands, glob, os, tempfile
+import commands, glob, md5, os, stat, tempfile
 from debian.deb822 import Changes, Dsc
 
 from config import Config
@@ -205,7 +205,15 @@ class Builder:
         for changes_path in glob.glob(os.path.join(products_dir, "*.changes")):
             changes = Changes(open(changes_path).read())
             products.append(changes)
-
+            
+            # Append a dictionary describing the changes file itself to the list
+            # of products.
+            products.append({"Source": changes["Source"],
+                             "Version": changes["Version"],
+                             "Files": [{"name": os.path.split(changes_path)[1],
+                                        "md5sum": md5.md5(open(changes_path, "rb").read()).hexdigest(),
+                                        "size": os.stat(changes_path)[stat.ST_SIZE]}]})
+        
         return products
     
     def list(self):
