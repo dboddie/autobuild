@@ -320,7 +320,7 @@ class Overview:
 
 if __name__ == "__main__":
 
-    if True: # with daemon.DaemonContext():
+    with daemon.DaemonContext():
     
         app = web.application(urls, globals())
         app.run()
