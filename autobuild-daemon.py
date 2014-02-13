@@ -305,11 +305,17 @@ class Overview:
         if status == "Building":
             return "Building"
         elif status == "Built":
-            return '<span class="success">Built</span> (<a href="/products?chroot=%s&repo=%s">products</a>)' % (chroot, repo)
+            return ('<span class="success">Built</span> '
+                    '(<a href="/products?chroot=%(chroot)s&repo=%(repo)s">products</a>, '
+                    '<a href="/build?chroot=%(chroot)s&repo=%(repo)s">rebuild</a>)') % \
+                    {"chroot": chroot, "repo": repo}
         elif status == "Failed":
-            return '<span class="failure">Failed</span>'
+            return ('<span class="failure">Failed</span> '
+                    '(<a href="/build?chroot=%(chroot)s&repo=%(repo)s">build</a>)') % \
+                    {"chroot": chroot, "repo": repo}
         else:
-            return ""
+            return '(<a href="/build?chroot=%(chroot)s&repo=%(repo)s">build</a>)' % \
+                   {"chroot": chroot, "repo": repo}
 
 
 if __name__ == "__main__":

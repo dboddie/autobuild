@@ -275,7 +275,7 @@ class Builder:
         
         # Assume that we are in a package source directory and run pdebuild,
         # passing pbuilder options after the -- separator.
-        result = os.system("pdebuild -- --configfile " + \
+        result = os.system("sudo pdebuild -- --configfile " + \
                            commands.mkarg(pbuilderrc))
         if result == 0:
         
