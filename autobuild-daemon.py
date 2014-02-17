@@ -293,7 +293,7 @@ class Publish(Base):
         if not chroot or not repo:
             raise web.notfound()
         
-        return self.publish(chroot, repo)
+        return self.publish(chroot[0], repo[0])
     
     def publish(self, chroot, repo):
     
