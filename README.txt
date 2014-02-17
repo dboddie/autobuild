@@ -17,10 +17,15 @@ The python-apt-repo-setup.py tool needs to be run:
 
   python-apt-repo-setup.py create /home/build/public_html/repo precise contrib
 
-The .autobuild-apt-repo file needs to be created in the build user's home directory and
-given the following contents:
+The .autobuild-apt-repo file needs to be created in the build user's home directory
+using the following command:
 
-precise-amd64: /home/build/public_html/repo precise contrib
+  python -c "open('.autobuild-apt-repo', 'w').write('precise-amd64: /home/build/public_html/repo\tprecise\tcontrib')
+
+Copy apt repository signing keys to the build user's home directory and import
+them using the following command:
+
+  gpg --import sign*.key
 
 Run the daemon using the following commands:
 
