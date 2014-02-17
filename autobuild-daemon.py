@@ -320,7 +320,7 @@ class Publish(Base):
             file_names = map(lambda f: os.path.join(info["products"], f["name"]), files)
             result = os.system("python-apt-repo-setup.py add " + \
                                commands.mkarg(repo_component_path) + \
-                               " --link " + " ".join(map(commands.mkarg, file_names)))
+                               " " + " ".join(map(commands.mkarg, file_names)))
             if result != 0:
                 raise web.notfound("Failed to add %s files to the apt repository" % name)
         
