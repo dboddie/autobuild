@@ -302,7 +302,7 @@ class Publish(Base):
             raise web.notfound("No apt repository defined for %s" % chroot)
         
         repo_path, suite, component = c.lines[chroot]
-        repo_component_path = os.path.join(repo_path, suite, component)
+        repo_component_path = os.path.join(repo_path, "dists", suite, component)
         
         p = Products()
         products = p.get_product_files(chroot, repo)
