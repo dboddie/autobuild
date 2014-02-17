@@ -13,7 +13,8 @@ urls = ("/", "Overview",
         "/chroots", "Chroots",
         "/build", "Build",
         "/products", "Products",
-        "/product", "Product")
+        "/product", "Product",
+        "/publish", "Publish")
 
 class Base:
 
@@ -27,6 +28,8 @@ class Base:
         return q
 
 class Update(Base):
+
+    """Handles requests to update source repositories."""
 
     template = ("$def with (repo)\n"
                      "Updated $repo.")
@@ -53,6 +56,8 @@ class Update(Base):
             raise web.notfound()
 
 class Repos:
+
+    """Handles requests to list the available source repositories."""
 
     title = "Repositories"
     config = "autobuild-repo"
@@ -82,10 +87,14 @@ class Repos:
 
 class Chroots(Repos):
 
+    """Handles requests to list the available chroots."""
+
     title = "Build Environments"
     config = "autobuild-builder"
 
 class Build(Base):
+
+    """Handles requests to build the contents of a source repository in a chroot."""
 
     template = ("$def with (chroot, repo)\n"
                 "Started build of $repo for $chroot.")
@@ -183,6 +192,8 @@ class Build(Base):
 
 class Products(Base):
 
+    """Handles requests to list the products made using a chroot."""
+
     template = ("$def with (title, chroot, repo, products)\n"
                 "<html>\n<head><title>$title</title></head>\n"
                 "<body>\n"
@@ -208,6 +219,12 @@ class Products(Base):
 
     def products(self, chroot, repo):
 
+        p = self.get_product_files(chroot, repo)
+        t = web.template.Template(self.template)
+        return t("Products", chroot, repo, p)
+    
+    def get_product_files(self, chroot, repo):
+
         c = config.Config(Chroots.config)
         b = builder.Builder(c)
         
@@ -228,11 +245,12 @@ class Products(Base):
             files = files.values()
             files.sort()
             p.append((key, files))
-        
-        t = web.template.Template(self.template)
-        return t("Products", chroot, repo, p)
+
+        return p
 
 class Product(Base):
+
+    """Handles requests for specific build products."""
 
     def GET(self):
     
@@ -260,7 +278,66 @@ class Product(Base):
 
         return open(file_path, "rb").read()
 
+class Publish:
+
+    """Handles requests for publication of build products in apt repositories."""
+    
+    config = "autobuild-apt-repo"
+
+    def GET(self):
+
+        q = self.get_query()
+        
+        chroot = q.get("chroot")
+        repo = q.get("repo")
+        if not chroot or not repo:
+            raise web.notfound()
+        
+        return self.publish(chroot, repo)
+    
+    def publish(self, chroot, repo):
+    
+        c = config.Config(Publish.config)
+        if not c.check_label(chroot):
+            raise web.notfound("No apt repository defined for %s" % chroot)
+        
+        repo_path, suite, component = c.lines[chroot]
+        repo_component_path = os.path.join(repo_path, suite, component)
+        
+        p = Products()
+        products = p.get_product_files(chroot, repo)
+
+        c = config.Config(Chroots.config)
+        b = builder.Builder(c)
+        
+        try:
+            info = b.info(chroot)
+        except KeyError:
+            raise notfound("No such chroot")
+        
+        for name, files in products.items():
+
+            file_names = map(lambda f: os.path.join(info["products"], f["name"]))
+            result = os.system("python-apt-repo-setup.py add " + \
+                               commands.mkarg(repo_component_path) + \
+                               " --link " + " ".join(map(commands.mkarg, file_names)))
+            if result != 0:
+                raise web.notfound("Failed to add %s files to the apt repository" % name)
+        
+        result = os.system("python-apt-repo-setup.py update " + commands.mkarg(repo_path))
+        if result != 0:
+            raise web.notfound("Failed to update the apt repository")
+        
+        result = os.system("python-apt-repo-setup.py sign " + commands.mkarg(repo_path) + " " + commands.mkarg(suite))
+        if result != 0:
+            raise web.notfound("Failed to sign the apt repository")
+        
+        return "Files added"
+
 class Overview:
+
+    """Handles requests for an overview of the available chroots, source repositories
+    and the status of any builds."""
 
     template = ("$def with (title, chroots, repos, status)\n"
                 "<html>\n<head><title>$title</title>\n"
