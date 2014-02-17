@@ -315,7 +315,7 @@ class Publish(Base):
         except KeyError:
             raise notfound("No such chroot")
         
-        for name, files in products.items():
+        for name, files in products:
 
             file_names = map(lambda f: os.path.join(info["products"], f["name"]))
             result = os.system("python-apt-repo-setup.py add " + \
