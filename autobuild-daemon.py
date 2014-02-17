@@ -278,7 +278,7 @@ class Product(Base):
 
         return open(file_path, "rb").read()
 
-class Publish:
+class Publish(Base):
 
     """Handles requests for publication of build products in apt repositories."""
     
