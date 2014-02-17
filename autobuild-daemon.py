@@ -317,7 +317,7 @@ class Publish(Base):
         
         for name, files in products:
 
-            file_names = map(lambda f: os.path.join(info["products"], f["name"]))
+            file_names = map(lambda f: os.path.join(info["products"], f["name"]), files)
             result = os.system("python-apt-repo-setup.py add " + \
                                commands.mkarg(repo_component_path) + \
                                " --link " + " ".join(map(commands.mkarg, file_names)))
