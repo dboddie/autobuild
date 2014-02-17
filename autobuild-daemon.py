@@ -276,7 +276,7 @@ class Overview:
                 "    <th></th>\n"
                 "$for chroot in chroots:\n"
                 "    <th>$chroot</th>\n"
-                "    </tr>\n"
+                "</tr>\n"
                 "$for repo in repos:\n"
                 "    <tr>\n"
                 "    <th>$repo</th>\n"
