@@ -134,8 +134,12 @@ class Build(Base):
         current_dir = os.path.abspath(os.curdir)
 
         # Read the changelog for the project in the repository.
-        changelog_path = os.path.join(repo_path, "debian", "changelog")
-        ch = Changelog(open(changelog_path))
+        try:
+            changelog_path = os.path.join(repo_path, "debian", "changelog")
+            ch = Changelog(open(changelog_path))
+        except IOError:
+            raise web.notfound("No debian directory found")
+
         snapshot_name = ch.package + "-" + ch.upstream_version
         snapshot_archive_name = ch.package + "_" + ch.upstream_version
 
