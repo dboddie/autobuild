@@ -173,7 +173,7 @@ class Builder:
             hooks.setdefault(name[0], []).append(name)
         
         if not hooks:
-            sys.exit()
+            return
         
         print hooks_dir
         
