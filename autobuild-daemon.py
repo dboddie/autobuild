@@ -385,7 +385,7 @@ class Overview:
             return ('<span class="success">Built</span> '
                     '(<a href="/products?chroot=%(chroot)s&repo=%(repo)s">products</a>, '
                     '<a href="/build?chroot=%(chroot)s&repo=%(repo)s">rebuild</a>, '
-                    '<a href="/build?chroot=%(chroot)s&repo=%(repo)s">publish</a>)') % \
+                    '<a href="/publish?chroot=%(chroot)s&repo=%(repo)s">publish</a>)') % \
                     {"chroot": chroot, "repo": repo}
         elif status == "Failed":
             return ('<span class="failure">Failed</span> '
