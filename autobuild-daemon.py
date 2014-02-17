@@ -301,7 +301,7 @@ class Publish(Base):
         if not c.check_label(chroot):
             raise web.notfound("No apt repository defined for %s" % chroot)
         
-        repo_path, suite, component = c.lines[chroot]
+        repo_path, suite, component, repo_url = c.lines[chroot]
         repo_component_path = os.path.join(repo_path, "dists", suite, component)
         
         p = Products()
@@ -332,7 +332,7 @@ class Publish(Base):
         if result != 0:
             raise web.notfound("Failed to sign the apt repository")
         
-        return "Files added"
+        return "Files added to %s" % repo_url
 
 class Overview:
 
@@ -385,6 +385,7 @@ class Overview:
             return ('<span class="success">Built</span> '
                     '(<a href="/products?chroot=%(chroot)s&repo=%(repo)s">products</a>, '
                     '<a href="/build?chroot=%(chroot)s&repo=%(repo)s">rebuild</a>)') % \
+                    '<a href="/build?chroot=%(chroot)s&repo=%(repo)s">publish</a>)') % \
                     {"chroot": chroot, "repo": repo}
         elif status == "Failed":
             return ('<span class="failure">Failed</span> '
