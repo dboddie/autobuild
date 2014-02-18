@@ -12,6 +12,7 @@ urls = ("/", "Overview",
         "/repos", "Repos",
         "/chroots", "Chroots",
         "/build", "Build",
+        "/log", "Log",
         "/products", "Products",
         "/product", "Product",
         "/publish", "Publish")
@@ -282,6 +283,36 @@ class Product(Base):
 
         return open(file_path, "rb").read()
 
+class Log(Base):
+
+    """Handles requests for log files."""
+
+    def GET(self):
+    
+        q = self.get_query()
+        
+        chroot = q.get("chroot")
+        repo = q.get("repo")
+        log = q.get("log")
+        if not chroot or not repo:
+            raise web.notfound()
+        
+        return self.log(chroot[0], repo[0], log[0])
+
+    def log(self, chroot, repo, log):
+    
+        label = processes.process_path(chroot, repo)
+        file_name = label + "." + log
+        
+        if file_name not in processes.output_paths(label):
+            raise web.notfound("Failed to find log file")
+        
+        file_path = os.path.join(processes.tmp_dir, file_name)
+        web.header("Content-Disposition", 'attachment; filename="%s"' % file_name)
+        web.header("Content-Type", 'text/plain')
+
+        return open(file_path, "rb").read()
+
 class Publish(Base):
 
     """Handles requests for publication of build products in apt repositories."""
@@ -393,7 +424,9 @@ class Overview:
                     {"chroot": chroot, "repo": repo}
         elif status == "Failed":
             return ('<span class="failure">Failed</span> '
-                    '(<a href="/build?chroot=%(chroot)s&repo=%(repo)s">build</a>)') % \
+                    '(<a href="/build?chroot=%(chroot)s&repo=%(repo)s">build</a>, '
+                    '<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stdout">stdout</a>, '
+                    '<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stderr">stderr</a>)') % \
                     {"chroot": chroot, "repo": repo}
         else:
             return '(<a href="/build?chroot=%(chroot)s&repo=%(repo)s">build</a>)' % \

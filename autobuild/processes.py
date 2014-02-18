@@ -1,11 +1,15 @@
 import os, stat
 
 temp_dir = "/tmp"
-    
+
+def process_path(chroot, repo):
+
+    return chroot + "-" + repo
+
 def claim_process(chroot, repo):
 
-    label = chroot + "-" + repo
-    
+    label = process_path(chroot, repo)
+
     # Try to create a file.
     path = os.path.join(temp_dir, label)
     try:
@@ -34,7 +38,8 @@ def remove_lockfile(path):
 
 def status(chroot, repo):
 
-    label = chroot + "-" + repo
+    label = process_path(chroot, repo)
+
     path = os.path.join(temp_dir, label)
     stdout_path, stderr_path, result_path = output_paths(path)
 
