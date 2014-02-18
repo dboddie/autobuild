@@ -307,7 +307,7 @@ class Log(Base):
         if file_name not in processes.output_paths(label):
             raise web.notfound("Failed to find log file")
         
-        file_path = os.path.join(processes.tmp_dir, file_name)
+        file_path = os.path.join(processes.temp_dir, file_name)
         web.header("Content-Disposition", 'attachment; filename="%s"' % file_name)
         web.header("Content-Type", 'text/plain')
 
