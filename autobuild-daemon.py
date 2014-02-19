@@ -317,8 +317,6 @@ class Log(Base):
             raise web.notfound("Failed to find log file")
         
         file_path = os.path.join(processes.temp_dir, file_name)
-        web.header("Content-Disposition", 'attachment; filename="%s"' % file_name)
-        web.header("Content-Type", 'text/html')
 
         t = web.template.Template(self.template)
         title = "Log for " + repo + " in " + chroot
