@@ -391,8 +391,8 @@ class Overview:
     template = ("$def with (title, chroots, repos, status)\n"
                 "<html>\n<head><title>$title</title>\n"
                 '<style type="text/css">\n'
-                '  .success { color: green }\n'
-                '  .failure { color: red }\n'
+                '  .success { background-color: #c0f0c0; color: black }\n'
+                '  .failure { background-color: #f0c0c0; color: black }\n'
                 '  .commands { font-size: smaller }\n'
                 '  th { background-color: #c0c0c0 }\n'
                 '  .left-heading { text-align: left }\n'
@@ -400,7 +400,7 @@ class Overview:
                 "</head>\n"
                 "<body>\n"
                 "<h1>$title</h1>\n"
-                '<table cellborder="1" cellspacing="0.5em">\n'
+                '<table border="1" cellspacing="4" cellpadding="2">\n'
                 "    <tr>\n"
                 "    <th></th>\n"
                 "$for chroot in chroots:\n"
