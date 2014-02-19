@@ -401,7 +401,7 @@ class Overview:
                 "</tr>\n"
                 "$for repo in repos:\n"
                 "    <tr>\n"
-                '    <th>$repo (<a href="/update?repo=$repo">update</a>)</th>\n'
+                '    <th>$repo</th>\n'
                 "    $for chroot in chroots:\n"
                 "        <td>$status(chroot, repo)</td>\n"
                 "    </tr>\n"
