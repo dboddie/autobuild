@@ -273,8 +273,11 @@ class Builder:
         self.config.check_label(label)
         template, install_dir, distribution, pbuilderrc = self.config.lines[label]
         
-        # Assume that we are in a package source directory and run pdebuild,
-        # passing pbuilder options after the -- separator.
+        # Check that we are in a package source directory before running pdebuild.
+        if not os.path.isdir("debian"):
+            return 1
+        
+        # Pass pbuilder options after the -- separator.
         result = os.system("sudo pdebuild -- --configfile " + \
                            commands.mkarg(pbuilderrc))
         if result == 0:
