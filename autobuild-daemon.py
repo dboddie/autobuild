@@ -287,6 +287,15 @@ class Log(Base):
 
     """Handles requests for log files."""
 
+    template = ("$def with (title, text)\n"
+                "<html>\n<head><title>$title</title></head>\n"
+                "<body>\n"
+                "<h1>$title</h1>\n"
+                "<pre>\n"
+                "$text\n"
+                "</pre>\n"
+                "</body>\n</html>\n")
+
     def GET(self):
     
         q = self.get_query()
@@ -309,9 +318,12 @@ class Log(Base):
         
         file_path = os.path.join(processes.temp_dir, file_name)
         web.header("Content-Disposition", 'attachment; filename="%s"' % file_name)
-        web.header("Content-Type", 'text/plain')
+        web.header("Content-Type", 'text/html')
 
-        return open(file_path, "rb").read()
+        t = web.template.Template(self.template)
+        title = "Log for " + repo + " in " + chroot
+        text = open(file_path, "rb").read()
+        return t(title, text)
 
 class Publish(Base):
 
