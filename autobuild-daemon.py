@@ -394,11 +394,13 @@ class Overview:
                 '  .success { color: green }\n'
                 '  .failure { color: red }\n'
                 '  .commands { font-size: smaller }\n'
+                '  th { background-color: #c0c0c0 }\n'
+                '  .left-heading { text-align: left }\n'
                 '</style>\n'
                 "</head>\n"
                 "<body>\n"
                 "<h1>$title</h1>\n"
-                "<table>\n"
+                '<table cellborder="1" cellspacing="0.5em">\n'
                 "    <tr>\n"
                 "    <th></th>\n"
                 "$for chroot in chroots:\n"
@@ -406,7 +408,7 @@ class Overview:
                 "</tr>\n"
                 "$for repo in repos:\n"
                 "    <tr>\n"
-                '    <th>$repo <span class="commands">(<a href="/update?repo=$repo">update</a>)</span></th>\n'
+                '    <th class="left-heading">$repo <span class="commands">(<a href="/update?repo=$repo">update</a>)</span></th>\n'
                 "    $for chroot in chroots:\n"
                 "        <td>$status(chroot, repo)</td>\n"
                 "    </tr>\n"
