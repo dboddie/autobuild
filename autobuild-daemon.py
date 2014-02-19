@@ -37,7 +37,7 @@ class Update(Base):
     
     def GET(self):
 
-        self.POST()
+        return self.POST()
 
     def POST(self):
     
