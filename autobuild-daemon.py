@@ -394,13 +394,13 @@ class Overview:
                 '  .success { background-color: #c0f0c0; color: black }\n'
                 '  .failure { background-color: #f0c0c0; color: black }\n'
                 '  .commands { font-size: smaller }\n'
-                '  th { background-color: #c0c0c0 }\n'
+                '  table { border: 1px solid black }\n'
                 '  .left-heading { text-align: left }\n'
                 '</style>\n'
                 "</head>\n"
                 "<body>\n"
                 "<h1>$title</h1>\n"
-                '<table border="1" cellspacing="4" cellpadding="2">\n'
+                '<table cellspacing="4" cellpadding="2">\n'
                 "    <tr>\n"
                 "    <th></th>\n"
                 "$for chroot in chroots:\n"
@@ -410,7 +410,7 @@ class Overview:
                 "    <tr>\n"
                 '    <th class="left-heading">$repo <span class="commands">(<a href="/update?repo=$repo">update</a>)</span></th>\n'
                 "    $for chroot in chroots:\n"
-                "        <td>$status(chroot, repo)</td>\n"
+                "        $status(chroot, repo)\n"
                 "    </tr>\n"
                 "</table>\n"
                 "</body>\n</html>\n")
@@ -432,21 +432,21 @@ class Overview:
     
         status = processes.status(chroot, repo)
         if status == "Building":
-            return "Building"
+            return "<td>Building</td>"
         elif status == "Built":
-            return ('<span class="success">Built</span> '
+            return ('<td class="success">Built '
                     '<span class="commands">(<a href="/products?chroot=%(chroot)s&repo=%(repo)s">products</a>, '
                     '<a href="/build?chroot=%(chroot)s&repo=%(repo)s">rebuild</a>, '
-                    '<a href="/publish?chroot=%(chroot)s&repo=%(repo)s">publish</a>)</span>') % \
+                    '<a href="/publish?chroot=%(chroot)s&repo=%(repo)s">publish</a>)</span></td>') % \
                     {"chroot": chroot, "repo": repo}
         elif status == "Failed":
-            return ('<span class="failure">Failed</span> '
+            return ('<td class="failure">Failed '
                     '<span class="commands">(<a href="/build?chroot=%(chroot)s&repo=%(repo)s">build</a>, '
                     '<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stdout">stdout</a>, '
-                    '<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stderr">stderr</a>)</span>') % \
+                    '<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stderr">stderr</a>)</span></td>') % \
                     {"chroot": chroot, "repo": repo}
         else:
-            return '<span class="commands">(<a href="/build?chroot=%(chroot)s&repo=%(repo)s">build</a>)</span>' % \
+            return '<td><span class="commands">(<a href="/build?chroot=%(chroot)s&repo=%(repo)s">build</a>)</span></td>' % \
                    {"chroot": chroot, "repo": repo}
 
 
