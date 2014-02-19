@@ -35,6 +35,10 @@ class Update(Base):
     template = ("$def with (repo)\n"
                      "Updated $repo.")
     
+    def GET(self):
+
+        self.POST()
+
     def POST(self):
     
         q = self.get_query()
@@ -389,6 +393,7 @@ class Overview:
                 '<style type="text/css">\n'
                 '  .success { color: green }\n'
                 '  .failure { color: red }\n'
+                '  .commands { font-size: smaller }\n'
                 '</style>\n'
                 "</head>\n"
                 "<body>\n"
@@ -401,7 +406,7 @@ class Overview:
                 "</tr>\n"
                 "$for repo in repos:\n"
                 "    <tr>\n"
-                '    <th>$repo</th>\n'
+                '    <th>$repo <span class="commands">(<a href="/update?repo=$repo">update</a>)</span></th>\n'
                 "    $for chroot in chroots:\n"
                 "        <td>$status(chroot, repo)</td>\n"
                 "    </tr>\n"
@@ -428,18 +433,18 @@ class Overview:
             return "Building"
         elif status == "Built":
             return ('<span class="success">Built</span> '
-                    '(<a href="/products?chroot=%(chroot)s&repo=%(repo)s">products</a>, '
+                    '<span class="commands">(<a href="/products?chroot=%(chroot)s&repo=%(repo)s">products</a>, '
                     '<a href="/build?chroot=%(chroot)s&repo=%(repo)s">rebuild</a>, '
-                    '<a href="/publish?chroot=%(chroot)s&repo=%(repo)s">publish</a>)') % \
+                    '<a href="/publish?chroot=%(chroot)s&repo=%(repo)s">publish</a>)</span>') % \
                     {"chroot": chroot, "repo": repo}
         elif status == "Failed":
             return ('<span class="failure">Failed</span> '
-                    '(<a href="/build?chroot=%(chroot)s&repo=%(repo)s">build</a>, '
+                    '<span class="commands">(<a href="/build?chroot=%(chroot)s&repo=%(repo)s">build</a>, '
                     '<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stdout">stdout</a>, '
-                    '<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stderr">stderr</a>)') % \
+                    '<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stderr">stderr</a>)</span>') % \
                     {"chroot": chroot, "repo": repo}
         else:
-            return '(<a href="/build?chroot=%(chroot)s&repo=%(repo)s">build</a>)' % \
+            return '<span class="commands">(<a href="/build?chroot=%(chroot)s&repo=%(repo)s">build</a>)</span>' % \
                    {"chroot": chroot, "repo": repo}
 
 
