@@ -394,7 +394,7 @@ class Overview:
                 '  .success { background-color: #c0f0c0; color: black }\n'
                 '  .failure { background-color: #f0c0c0; color: black }\n'
                 '  .commands { font-size: smaller }\n'
-                '  table { border: 1px solid black }\n'
+                '  table { border: 1px solid #808080 }\n'
                 '  .left-heading { text-align: left }\n'
                 '</style>\n'
                 "</head>\n"
