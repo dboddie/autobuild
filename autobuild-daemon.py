@@ -64,8 +64,8 @@ class Update(Base):
     
     def update_chroot(self, chroot):
 
-        s = subprocess.Popen(["autobuild-builder.py", "update", chroot])
-        if s.wait() == 0:
+        result = os.system("autobuild-builder.py update " + commands.mkarg(chroot))
+        if result == 0:
             t = web.template.Template(self.template)
             return t(chroot)
         else:
