@@ -64,7 +64,7 @@ class Update(Base):
     
     def update_chroot(self, chroot):
 
-        result = os.system("autobuild-builder.py update " + commands.mkarg(chroot))
+        result = os.system("sudo autobuild-builder.py update " + commands.mkarg(chroot))
         if result == 0:
             t = web.template.Template(self.template)
             return t(chroot)
