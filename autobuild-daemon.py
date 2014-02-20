@@ -30,10 +30,10 @@ class Base:
 
 class Update(Base):
 
-    """Handles requests to update source repositories."""
+    """Handles requests to update source repositories and chroots."""
 
-    template = ("$def with (repo)\n"
-                     "Updated $repo.")
+    template = ("$def with (name)\n"
+                "Updated $name.")
     
     def GET(self):
 
@@ -44,19 +44,30 @@ class Update(Base):
         q = self.get_query()
 
         repo = q.get("repo")
-        if not repo:
+        chroot = q.get("chroot")
+        if not repo and not chroot:
             raise web.notfound()
-        else:
-            repo = repo[0]
         
-        return self.update(repo)
-
-    def update(self, repo):
+        if repo:
+            return self.update_repo(repo)
+        else:
+            return self.update_chroot(chroot)
+    
+    def update_repo(self, repo):
 
         s = subprocess.Popen(["autobuild-repo.py", "update", repo])
         if s.wait() == 0:
             t = web.template.Template(self.template)
             return t(repo)
+        else:
+            raise web.notfound()
+    
+    def update_chroot(self, chroot):
+
+        s = subprocess.Popen(["autobuild-builder.py", "update", chroot])
+        if s.wait() == 0:
+            t = web.template.Template(self.template)
+            return t(chroot)
         else:
             raise web.notfound()
 
@@ -404,7 +415,7 @@ class Overview:
                 "    <tr>\n"
                 "    <th></th>\n"
                 "$for chroot in chroots:\n"
-                "    <th>$chroot</th>\n"
+                '    <th>$chroot <span="commands">(<a href="/update?chroot=$chroot">update</a>)</span></th>\n'
                 "</tr>\n"
                 "$for repo in repos:\n"
                 "    <tr>\n"
