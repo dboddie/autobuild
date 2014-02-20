@@ -1,5 +1,5 @@
 MIRRORSITE=http://repo.met.no/ubuntu
-OTHERMIRROR='deb http://repo.met.no/ubuntu precise universe|deb http://repo.met.no/met.no precise main contrib partner|deb http://localhost/~build precise contrib'
+OTHERMIRROR='deb http://repo.met.no/ubuntu precise universe|deb http://repo.met.no/met.no precise main contrib partner|deb http://localhost/~build/repo precise contrib'
 CCACHEDIR=%(install dir)s/ccache
 
 APTCACHE=%(install dir)s/%(label)s/cache/aptcache
