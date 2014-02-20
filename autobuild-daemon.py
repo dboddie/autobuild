@@ -432,7 +432,10 @@ class Overview:
     
         status = processes.status(chroot, repo)
         if status == "Building":
-            return "<td>Building</td>"
+            return ("<td>Building "
+                    '<span class="commands">(<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stdout">stdout</a>, '
+                    '<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stderr">stderr</a>)</span></td>') % \
+                    {"chroot": chroot, "repo": repo}
         elif status == "Built":
             return ('<td class="success">Built '
                     '<span class="commands">(<a href="/products?chroot=%(chroot)s&repo=%(repo)s">products</a>, '
