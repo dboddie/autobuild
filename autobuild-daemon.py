@@ -49,9 +49,9 @@ class Update(Base):
             raise web.notfound()
         
         if repo:
-            return self.update_repo(repo)
+            return self.update_repo(repo[0])
         else:
-            return self.update_chroot(chroot)
+            return self.update_chroot(chroot[0])
     
     def update_repo(self, repo):
 
