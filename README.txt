@@ -4,7 +4,23 @@ build   ALL=(ALL:ALL) NOPASSWD: /usr/bin/autobuild-builder.py, /usr/bin/pdebuild
 
 The autobuild and python-apt-repo packages need to be installed.
 
-Some chroots need to be set up using the autobuild-builder.py tool. For example:
+If you want to reuse packages that have been built and published to a repository
+created by the python-apt-repo-setup.py tool, you need to import the signing key
+you intend to use into the trusted keyring before creating chroots.
+
+Create a key using gpg:
+
+  gpg --gen-key
+
+Export it to a file, using the appropriate <key-ID>:
+
+  gpg -a --export <key-ID> > sign.key
+
+Add it to the apt keyring:
+
+  apt-key add sign.key
+
+Set up chroots using the autobuild-builder.py tool. For example:
 
   autobuild-builder.py create precise-amd64 templates/metno /home/build/chroots precise
 
