@@ -7,7 +7,7 @@ class Processes:
     
         c = config.Config("autobuild-processes")
         c.load()
-        self.temp_dir = c.lines.get("temporary directory", "/tmp")
+        [self.temp_dir] = c.lines.get("temporary directory", "/tmp")
         if not os.path.exists(self.temp_dir):
             os.mkdir(self.temp_dir)
     
