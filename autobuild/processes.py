@@ -17,7 +17,7 @@ class Processes:
     
     def claim_process(self, chroot, repo):
     
-        label = process_path(chroot, repo)
+        label = self.process_path(chroot, repo)
     
         # Try to create a file.
         path = os.path.join(self.temp_dir, label)
@@ -47,7 +47,7 @@ class Processes:
     
     def status(self, chroot, repo):
     
-        label = process_path(chroot, repo)
+        label = self.process_path(chroot, repo)
     
         path = os.path.join(self.temp_dir, label)
         stdout_path, stderr_path, result_path = output_paths(path)
