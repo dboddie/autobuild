@@ -143,7 +143,7 @@ class Build(Base):
             raise web.notfound()
         
         # Check for an existing process and reserve space for a new one.
-        path = processes.claim_process(chroot, repo)
+        path = processes.manager.claim_process(chroot, repo)
         if not path:
             raise web.notfound("Not starting build")
         
@@ -186,7 +186,7 @@ class Build(Base):
         if pid == 0:
 
             # Child process (pid is 0)
-            stdout_path, stderr_path, result_path = processes.output_paths(path)
+            stdout_path, stderr_path, result_path = processes.manager.output_paths(path)
             for p in stdout_path, stderr_path, result_path:
                 if os.path.exists(p):
                     os.remove(p)
@@ -198,12 +198,12 @@ class Build(Base):
             open(result_path, "w").write(str(result))
 
             # Remove the lock file and delete the snapshot directory.
-            processes.remove_lockfile(path)
+            processes.manager.remove_lockfile(path)
             shutil.rmtree(snapshot_dir)
             sys.exit(result)
         else:
             # Parent process (pid is child pid)
-            processes.update_process(path, pid)
+            processes.manager.update_process(path, pid)
 
         os.chdir(current_dir)
 
@@ -325,13 +325,13 @@ class Log(Base):
 
     def log(self, chroot, repo, log):
     
-        label = processes.process_path(chroot, repo)
+        label = processes.manager.process_path(chroot, repo)
         file_name = label + "." + log
         
-        if file_name not in processes.output_paths(label):
+        if file_name not in processes.manager.output_paths(label):
             raise web.notfound("Failed to find log file")
         
-        file_path = os.path.join(processes.temp_dir, file_name)
+        file_path = os.path.join(processes.manager.temp_dir, file_name)
 
         t = web.template.Template(self.template)
         title = "Log for " + repo + " in " + chroot
@@ -441,7 +441,7 @@ class Overview:
 
     def status(self, chroot, repo):
     
-        status = processes.status(chroot, repo)
+        status = processes.manager.status(chroot, repo)
         if status == "Building":
             return ("<td>Building "
                     '<span class="commands">(<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stdout">stdout</a>, '
