@@ -50,7 +50,7 @@ class Processes:
         label = self.process_path(chroot, repo)
     
         path = os.path.join(self.temp_dir, label)
-        stdout_path, stderr_path, result_path = output_paths(path)
+        stdout_path, stderr_path, result_path = self.output_paths(path)
         
         if os.path.exists(path):
             return "Building"
