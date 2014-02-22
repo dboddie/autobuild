@@ -70,6 +70,7 @@ class Builder:
     
     def create(self, label, template, install_dir, distribution):
     
+        install_dir = os.path.abspath(install_dir)
         install_label_dir = os.path.join(install_dir, label)
         install_hooks_dir = os.path.join(install_dir, label, "hooks")
         pbuilderrc = os.path.join(install_label_dir, "pbuilderrc")

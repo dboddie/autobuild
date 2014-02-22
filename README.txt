@@ -1,6 +1,8 @@
 On the build machine, the /etc/sudoers file should include the following line:
 
-build   ALL=(ALL:ALL) NOPASSWD: /usr/bin/autobuild-builder.py, /usr/bin/pdebuild
+build   ALL=(ALL:ALL) NOPASSWD: /usr/bin/autobuild-builder.py, /usr/sbin/pbuilder, /usr/bin/pdebuild
+
+On some systems, pbuilder is in the /usr/bin directory.
 
 The autobuild and python-apt-repo packages need to be installed.
 
