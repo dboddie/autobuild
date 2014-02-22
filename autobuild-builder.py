@@ -36,6 +36,10 @@ if __name__ == "__main__":
         
             sys.exit(run(builder.destroy, sys.argv[2:3]))
         
+        elif command == "login" and len(sys.argv) == 3:
+        
+            sys.exit(run(builder.login, sys.argv[2:3]))
+        
         elif command == "update" and len(sys.argv) == 3:
         
             sys.exit(run(builder.update, sys.argv[2:3]))
@@ -88,6 +92,7 @@ if __name__ == "__main__":
     
     sys.stderr.write("Usage: %s create <label> <template> <install dir> <distribution>\n" % sys.argv[0])
     sys.stderr.write("       %s destroy <label>\n" % sys.argv[0])
+    sys.stderr.write("       %s login <label>\n" % sys.argv[0])
     sys.stderr.write("       %s update <label>\n" % sys.argv[0])
     sys.stderr.write("       %s list\n" % sys.argv[0])
     sys.stderr.write("       %s info <label>\n" % sys.argv[0])

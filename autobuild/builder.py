@@ -144,6 +144,20 @@ class Builder:
         else:
             raise AutobuildError, "Failed to update chroot '%s'." % label
     
+    def login(self, label):
+    
+        # Check to see if the chroot already exists.
+        self.config.check_label(label)
+        
+        template, install_dir, distribution, pbuilderrc = self.config.lines[label]
+        
+        install_label_dir = os.path.join(install_dir, label)
+        pbuilderrc = os.path.join(install_label_dir, "pbuilderrc")
+        
+        # Log in to the chroot by running pbuilder.
+        if os.system("pbuilder login --configfile " + commands.mkarg(pbuilderrc)) != 0:
+            raise AutobuildError, "Failed to log in to chroot '%s'." % label
+    
     def info(self, label):
     
         # Check to see if the chroot already exists.
