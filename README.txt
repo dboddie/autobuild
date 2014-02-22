@@ -38,7 +38,7 @@ The python-apt-repo-setup.py tool needs to be run:
 The .autobuild-apt-repo file needs to be created in the build user's home directory
 using the following command:
 
-  python -c "open('.autobuild-apt-repo', 'w').write('precise-amd64: /home/build/public_html/repo\tprecise\tcontrib')
+  python -c "open('.autobuild-apt-repo', 'w').write('precise-amd64: /home/build/public_html/repo\tprecise\tcontrib\thttp://localhost/~build/repo')
 
 Copy apt repository signing keys to the build user's home directory and import
 them using the following command:
