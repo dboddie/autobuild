@@ -1,9 +1,17 @@
 #!/usr/bin/env python
 
-import commands, glob, os, sys, tempfile
+import commands, glob, os, subprocess, sys
 from debian.deb822 import Changes, Dsc
 
 from autobuild.config import Config
+
+def check_label(config, label):
+
+    if not config.check_label(label):
+    
+        sys.stderr.write("The label '%s' is not recognised.\n" % label)
+        sys.exit(1)
+
 
 if __name__ == "__main__":
 
@@ -39,7 +47,7 @@ if __name__ == "__main__":
             label = sys.argv[2]
             
             # Check to see if the label already exists.
-            config.check_label(label)
+            check_label(config, label)
             
             # Remove the path from a list in the configuration file.
             config.remove(label)
@@ -52,7 +60,7 @@ if __name__ == "__main__":
             label = sys.argv[2]
             
             # Check to see if the label already exists.
-            config.check_label(label)
+            check_label(config, label)
             
             [path] = config.lines[label]
             
@@ -74,13 +82,42 @@ if __name__ == "__main__":
             
             sys.exit()
     
+        elif command == "revision" and len(sys.argv) == 3:
+        
+            label = sys.argv[2]
+            
+            # Check to see if the label already exists.
+            check_label(config, label)
+            
+            [path] = config.lines[label]
+            
+            # Find the latest revision in the repository by running the appropriate
+            # version control command.
+            os.chdir(path)
+            if os.path.exists(os.path.join(path, ".git")):
+                s = subprocess.Popen(["git", "log", "-1"], stdout=subprocess.PIPE)
+                result = s.wait()
+            elif os.path.exists(os.path.join(path, ".svn")):
+                s = subprocess.Popen(["svn", "log", "-l", "1"], stdout=subprocess.PIPE)
+                result = s.wait()
+            else:
+                result = -1
+            
+            if result == 0:
+                print s.stdout.read()
+            else:
+                sys.stderr.write("Failed to find revision for repository '%s'.\n" % label)
+                sys.exit(1)
+            
+            sys.exit()
+    
         elif command == "snapshot" and len(sys.argv) == 4:
         
             label = sys.argv[2]
             snapshot_dir = sys.argv[3]
             
             # Check to see if the label already exists.
-            config.check_label(label)
+            check_label(config, label)
             
             [path] = config.lines[label]
             
@@ -129,7 +166,7 @@ if __name__ == "__main__":
             label = sys.argv[2]
             
             # Check to see if the label already exists.
-            config.check_label(label)
+            check_label(config, label)
             
             [path] = config.lines[label]
             
@@ -140,6 +177,7 @@ if __name__ == "__main__":
     sys.stderr.write("Usage: %s add <label> <path>\n" % sys.argv[0])
     sys.stderr.write("       %s remove <label>\n" % sys.argv[0])
     sys.stderr.write("       %s update <label>\n" % sys.argv[0])
+    sys.stderr.write("       %s revision <label>\n" % sys.argv[0])
     sys.stderr.write("       %s snapshot <label> <path>\n" % sys.argv[0])
     sys.stderr.write("       %s list\n" % sys.argv[0])
     sys.stderr.write("       %s info <label>\n" % sys.argv[0])

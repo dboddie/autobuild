@@ -9,6 +9,7 @@ from autobuild import builder, config, processes
 
 urls = ("/", "Overview",
         "/update", "Update",
+        "/revision", "Revision",
         "/repos", "Repos",
         "/chroots", "Chroots",
         "/build", "Build",
@@ -68,6 +69,33 @@ class Update(Base):
         if result == 0:
             t = web.template.Template(self.template)
             return t(chroot)
+        else:
+            raise web.notfound()
+
+class Revision(Base):
+
+    """Handles requests to obtain latest revisions of source repositories."""
+
+    template = ("$def with (text)\n"
+                "$text")
+    
+    def GET(self):
+
+        q = self.get_query()
+
+        repo = q.get("repo")
+        if not repo:
+            raise web.notfound()
+        
+        return self.revision(repo[0])
+    
+    def revision(self, repo):
+
+        s = subprocess.Popen(["autobuild-repo.py", "revision", repo],
+                             stdout=subprocess.PIPE)
+        if s.wait() == 0:
+            t = web.template.Template(self.template)
+            return t(s.stdout.read())
         else:
             raise web.notfound()
 
@@ -419,7 +447,9 @@ class Overview:
                 "</tr>\n"
                 "$for repo in repos:\n"
                 "    <tr>\n"
-                '    <th class="left-heading">$repo <span class="commands">(<a href="/update?repo=$repo">update</a>)</span></th>\n'
+                '    <th class="left-heading">$repo<br />\n'
+                '      <span class="commands">(<a href="/revision?repo=$repo">revision</a>,\n'
+                '                              <a href="/update?repo=$repo">update</a>)</span></th>\n'
                 "    $for chroot in chroots:\n"
                 "        $status(chroot, repo)\n"
                 "    </tr>\n"
