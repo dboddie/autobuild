@@ -94,7 +94,7 @@ class Builder:
         write_file(pbuilderrc, text)
         
         # Create the chroot by running pbuilder.
-        result = os.system("pbuilder create --configfile " + commands.mkarg(pbuilderrc))
+        result = os.system("sudo pbuilder create --configfile " + commands.mkarg(pbuilderrc))
         if result == 0:
         
             # Reopen the configuration file. Really, we should lock the
