@@ -346,7 +346,7 @@ class Log(Base):
         chroot = q.get("chroot")
         repo = q.get("repo")
         log = q.get("log")
-        if not chroot or not repo:
+        if not chroot or not repo or not log:
             raise web.notfound()
         
         return self.log(chroot[0], repo[0], log[0])
