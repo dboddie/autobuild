@@ -180,7 +180,7 @@ class Build(Base):
         current_dir = os.path.abspath(os.curdir)
 
         # Read the changelog for the project in the repository.
-        changelogs = glob.glob(os.path.join(repo_path, "debian*", "changelog")
+        changelogs = glob.glob(os.path.join(repo_path, "debian*", "changelog"))
         if len(changelogs) != 1:
             processes.manager.remove_lockfile(path)
             raise web.notfound("No unique changelog found")
