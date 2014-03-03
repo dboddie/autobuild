@@ -167,6 +167,8 @@ class Build(Base):
             if not build_conf.check_label(chroot):
                 raise web.notfound()
 
+            fixes_conf = config.Config("autobuild-fixes")
+
         except KeyError:
             raise web.notfound()
         
@@ -209,6 +211,13 @@ class Build(Base):
 
         # Enter the snapshot directory.
         os.chdir(snapshot_subdir)
+        
+        # Apply any fixes that may be required.
+        if fixes_conf.check_label(repo):
+            commands = fixes_conf.lines[repo]
+            for command in commands:
+                if os.system(command) != 0:
+                    raise web.notfound("Failed to fix snapshot before building")
         
         pid = os.fork()
         if pid == 0:
