@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import cgi, commands, os, shutil, subprocess, sys, tempfile
+import cgi, commands, glob, os, shutil, subprocess, sys, tempfile
 from debian.changelog import Changelog
 import daemon
 import web
@@ -180,8 +180,13 @@ class Build(Base):
         current_dir = os.path.abspath(os.curdir)
 
         # Read the changelog for the project in the repository.
+        changelogs = glob.glob(os.path.join(repo_path, "debian*", "changelog")
+        if len(changelogs) != 1:
+            processes.manager.remove_lockfile(path)
+            raise web.notfound("No unique changelog found")
+
         try:
-            changelog_path = os.path.join(repo_path, "debian", "changelog")
+            changelog_path = changelogs[0]
             ch = Changelog(open(changelog_path))
         except IOError:
             processes.manager.remove_lockfile(path)
