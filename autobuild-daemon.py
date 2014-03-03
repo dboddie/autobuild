@@ -222,8 +222,7 @@ class Build(Base):
         
         # Apply any fixes that may be required.
         if fixes_conf.check_label(repo):
-            commands = fixes_conf.lines[repo]
-            for command in commands:
+            for command in fixes_conf.lines[repo]:
                 if os.system(command) != 0:
                     processes.manager.remove_lockfile(path)
                     raise web.notfound("Failed to fix snapshot before building")
