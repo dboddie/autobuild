@@ -184,6 +184,7 @@ class Build(Base):
             changelog_path = os.path.join(repo_path, "debian", "changelog")
             ch = Changelog(open(changelog_path))
         except IOError:
+            processes.manager.remove_lockfile(path)
             raise web.notfound("No debian directory found")
 
         snapshot_name = ch.package + "-" + ch.upstream_version
@@ -198,6 +199,7 @@ class Build(Base):
         if result != 0:
             # Remove the snapshot directory if a snapshot couldn't be created.
             shutil.rmtree(snapshot_dir)
+            processes.manager.remove_lockfile(path)
             raise web.notfound("Failed to create a snapshot")
         
         # Create an archive of the snapshot.
@@ -207,6 +209,7 @@ class Build(Base):
         if result != 0:
             # Remove the snapshot directory if a snapshot archive couldn't be created.
             shutil.rmtree(snapshot_dir)
+            processes.manager.remove_lockfile(path)
             raise web.notfound("Failed to create a snapshot archive")
 
         # Enter the snapshot directory.
@@ -217,6 +220,7 @@ class Build(Base):
             commands = fixes_conf.lines[repo]
             for command in commands:
                 if os.system(command) != 0:
+                    processes.manager.remove_lockfile(path)
                     raise web.notfound("Failed to fix snapshot before building")
         
         pid = os.fork()
