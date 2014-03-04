@@ -490,7 +490,7 @@ class Overview:
     
         status, time_str = processes.manager.status(chroot, repo)
         if status == "Building":
-            return ("<td>Building (started %(time)s)<br />\n"
+            return ("<td>Started (%(time)s)<br />\n"
                     '<span class="commands">(<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stdout">stdout</a>, '
                     '<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stderr">stderr</a>)</span></td>') % \
                     {"chroot": chroot, "repo": repo, "time": time_str}
