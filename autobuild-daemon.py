@@ -488,24 +488,24 @@ class Overview:
 
     def status(self, chroot, repo):
     
-        status = processes.manager.status(chroot, repo)
+        status, time_str = processes.manager.status(chroot, repo)
         if status == "Building":
-            return ("<td>Building "
+            return ("<td>Building (started %(time)s)<br />\n"
                     '<span class="commands">(<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stdout">stdout</a>, '
                     '<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stderr">stderr</a>)</span></td>') % \
-                    {"chroot": chroot, "repo": repo}
+                    {"chroot": chroot, "repo": repo, "time": time_str}
         elif status == "Built":
-            return ('<td class="success">Built '
+            return ('<td class="success">Built (%(time)s)<br />\n'
                     '<span class="commands">(<a href="/products?chroot=%(chroot)s&repo=%(repo)s">products</a>, '
                     '<a href="/build?chroot=%(chroot)s&repo=%(repo)s">rebuild</a>, '
                     '<a href="/publish?chroot=%(chroot)s&repo=%(repo)s">publish</a>)</span></td>') % \
-                    {"chroot": chroot, "repo": repo}
+                    {"chroot": chroot, "repo": repo, "time": time_str}
         elif status == "Failed":
-            return ('<td class="failure">Failed '
+            return ('<td class="failure">Failed (%(time)s)<br />\n'
                     '<span class="commands">(<a href="/build?chroot=%(chroot)s&repo=%(repo)s">build</a>, '
                     '<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stdout">stdout</a>, '
                     '<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stderr">stderr</a>)</span></td>') % \
-                    {"chroot": chroot, "repo": repo}
+                    {"chroot": chroot, "repo": repo, "time": time_str}
         else:
             return '<td><span class="commands">(<a href="/build?chroot=%(chroot)s&repo=%(repo)s">build</a>)</span></td>' % \
                    {"chroot": chroot, "repo": repo}
