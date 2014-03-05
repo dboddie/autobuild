@@ -354,6 +354,7 @@ class Log(Base):
                 "<pre>\n"
                 "$text\n"
                 "</pre>\n"
+                '<a name="end"></a>\n'
                 "</body>\n</html>\n")
 
     def GET(self):
