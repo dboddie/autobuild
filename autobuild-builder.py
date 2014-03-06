@@ -55,6 +55,7 @@ if __name__ == "__main__":
             print "Configuration file:", info["configuration"]
             print "Hooks directory:   ", info["hooks"]
             print "Products directory:", info["products"]
+            print "Signing key:       ", info["signing key"]
             sys.exit()
         
         elif command == "hooks" and len(sys.argv) == 3:
