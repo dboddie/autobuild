@@ -117,10 +117,8 @@ class Builder:
         # Check to see if the chroot already exists.
         self.config.check_label(label)
         
-        template, install_dir, distribution, pbuilderrc = self.config.lines[label]
-        
+        install_dir = self.config.lines[label][1]
         install_label_dir = os.path.join(install_dir, label)
-        pbuilderrc = os.path.join(install_label_dir, "pbuilderrc")
         
         # Remove the installation directory for this distribution.
         remove_dir(install_label_dir, sudo = False)
@@ -134,10 +132,8 @@ class Builder:
         # Check to see if the chroot already exists.
         self.config.check_label(label)
         
-        template, install_dir, distribution, pbuilderrc = self.config.lines[label]
-        
+        template, install_dir, distribution, pbuilderrc = self.config.lines[label][:4]
         install_label_dir = os.path.join(install_dir, label)
-        pbuilderrc = os.path.join(install_label_dir, "pbuilderrc")
         
         # Update the chroot by running pbuilder.
         if os.system("pbuilder update --configfile " + commands.mkarg(pbuilderrc)) == 0:
@@ -150,10 +146,8 @@ class Builder:
         # Check to see if the chroot already exists.
         self.config.check_label(label)
         
-        template, install_dir, distribution, pbuilderrc = self.config.lines[label]
-        
+        template, install_dir, distribution, pbuilderrc = self.config.lines[label][:4]
         install_label_dir = os.path.join(install_dir, label)
-        pbuilderrc = os.path.join(install_label_dir, "pbuilderrc")
         
         # Log in to the chroot by running pbuilder.
         if os.system("pbuilder login --configfile " + commands.mkarg(pbuilderrc)) != 0:
@@ -164,7 +158,7 @@ class Builder:
         # Check to see if the chroot already exists.
         self.config.check_label(label)
         
-        template, install_dir, distribution, pbuilderrc = self.config.lines[label]
+        template, install_dir, distribution, pbuilderrc, key_id = self.config.lines[label][:5]
         hooks_dir = os.path.join(install_dir, label, "hooks")
         products_dir = os.path.join(install_dir, label, "cache", "result")
         
@@ -173,14 +167,15 @@ class Builder:
                 "distribution": distribution,
                 "configuration": pbuilderrc,
                 "hooks": hooks_dir,
-                "products": products_dir}
+                "products": products_dir,
+                "signing key": key_id}
     
     def hooks(self, label):
     
         # Check to see if the chroot already exists.
         self.config.check_label(label)
         
-        template, install_dir, distribution, pbuilderrc = self.config.lines[label]
+        install_dir = self.config.lines[label][1]
         hooks_dir = os.path.join(install_dir, label, "hooks")
         
         hooks = {}
@@ -212,7 +207,7 @@ class Builder:
         # Check to see if the chroot already exists.
         self.config.check_label(label)
         
-        template, install_dir, distribution, pbuilderrc = self.config.lines[label]
+        install_dir = self.config.lines[label][1]
         products_dir = os.path.join(install_dir, label, "cache", "result")
         
         products = {}
@@ -247,7 +242,7 @@ class Builder:
     
         # Check to see if the chroot already exists.
         self.config.check_label(label)
-        template, install_dir, distribution, pbuilderrc = self.config.lines[label]
+        template, install_dir, distribution, pbuilderrc = self.config.lines[label][:4]
         
         if name.endswith(".dsc"):
         
@@ -286,15 +281,22 @@ class Builder:
     
         # Check to see if the chroot already exists.
         self.config.check_label(label)
-        template, install_dir, distribution, pbuilderrc = self.config.lines[label]
+        options = self.config.lines[label]
+        template, install_dir, distribution, pbuilderrc = options[:4]
         
         # Check that we are in a package source directory before running pdebuild.
         if not os.path.isdir("debian"):
             return 1
         
-        # Pass pbuilder options after the -- separator.
-        result = os.system("sudo pdebuild --configfile " + \
-                           commands.mkarg(pbuilderrc))
+        # Run pdebuild with options for signing if a key ID was supplied.
+        if len(options) == 5:
+            key_id = options[4]
+            result = os.system("sudo pdebuild --auto-debsign --debsign-k " + \
+                               commands.mkarg(key_id) + " "
+                               "--configfile " + commands.mkarg(pbuilderrc))
+        else:
+            result = os.system("sudo pdebuild --configfile " + \
+                               commands.mkarg(pbuilderrc))
         if result == 0:
         
             products_dir = os.path.join(install_dir, label, "cache", "result")
@@ -306,7 +308,7 @@ class Builder:
     
         # Check to see if the chroot already exists.
         self.config.check_label(label)
-        template, install_dir, distribution, pbuilderrc = self.config.lines[label]
+        install_dir = self.config.lines[label][1]
         products_dir = os.path.join(install_dir, label, "cache", "result")
         
         # Find the .dsc and .changes files for the named package.
@@ -341,3 +343,4 @@ class Builder:
         # Delete the files associated with this package.
         for file_name in files:
             remove_file(os.path.join(products_dir, file_name), sudo = False)
+
