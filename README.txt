@@ -1,3 +1,35 @@
+Setting up the build machine
+----------------------------
+
+The build machine is typically configured to have a build user, created by
+the root user with the following commands:
+
+  useradd -G sudo,www-data -m -s /bin/bash build
+  passwd build
+
+It's useful to install some tools for maintenance:
+
+  apt-get install vim ccache devscripts quilt dpkg-dev
+
+It's also a good idea to create a file containing authorised keys so that
+you can log in securely without needing a password. Make sure that the
+build user has an .ssh directory:
+
+  mkdir ~build/.ssh
+
+Export your public key on your local machine using
+
+  gpg -a --export <key-ID> > pub.key
+
+Copy it to the build machine and append it to the build user's authorised
+keys file:
+
+  cat pub.key >> ~build/.ssh/authorized_keys
+
+
+Configuring the build system
+----------------------------
+
 On the build machine, the /etc/sudoers file should include the following line:
 
 build   ALL=(ALL:ALL) NOPASSWD: /usr/bin/autobuild-builder.py, /usr/sbin/pbuilder, /usr/bin/pdebuild
