@@ -293,7 +293,7 @@ class Builder:
             return 1
         
         # Pass pbuilder options after the -- separator.
-        result = os.system("sudo pdebuild -- --configfile " + \
+        result = os.system("sudo pdebuild --configfile " + \
                            commands.mkarg(pbuilderrc))
         if result == 0:
         
