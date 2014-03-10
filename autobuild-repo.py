@@ -62,13 +62,17 @@ if __name__ == "__main__":
             # Check to see if the label already exists.
             check_label(config, label)
             
-            [path] = config.lines[label]
+            path, method = config.lines[label][:2]
             
             # Update the repository in the path by running the appropriate
             # version control command.
             os.chdir(path)
             if os.path.exists(os.path.join(path, ".git")):
-                result = os.system("git pull")
+                if method == "rebase":
+                    result = os.system("git rebase")
+                else:
+                    result = os.system("git pull")
+            
             elif os.path.exists(os.path.join(path, ".svn")):
                 result = os.system("svn up")
             else:
@@ -89,7 +93,7 @@ if __name__ == "__main__":
             # Check to see if the label already exists.
             check_label(config, label)
             
-            [path] = config.lines[label]
+            path = config.lines[label][0]
             
             # Find the latest revision in the repository by running the appropriate
             # version control command.
@@ -119,7 +123,7 @@ if __name__ == "__main__":
             # Check to see if the label already exists.
             check_label(config, label)
             
-            [path] = config.lines[label]
+            path = config.lines[label][0]
             
             # Unpack the current sources from the repository in the path specified
             # to the snapshot directory by running the appropriate version control
@@ -168,7 +172,7 @@ if __name__ == "__main__":
             # Check to see if the label already exists.
             check_label(config, label)
             
-            [path] = config.lines[label]
+            path = config.lines[label][0]
             
             print label
             print "Location:", path
