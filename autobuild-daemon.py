@@ -181,22 +181,17 @@ class Build(Base):
 
         # Read the changelog for the project in the repository.
         changelogs = glob.glob(os.path.join(repo_path, "debian*", "changelog"))
-        if not changelogs:
+        if len(changelogs) != 1:
             processes.manager.remove_lockfile(path)
             raise web.notfound("No unique changelog found")
-        
-        for changelog_path in changelogs:
-            try:
-                ch = Changelog(open(changelog_path))
-                if ch.package == repo:
-                    break
-            except IOError:
-                pass
-        else:
-            # None of the changelogs matched the repository name.
+
+        try:
+            changelog_path = changelogs[0]
+            ch = Changelog(open(changelog_path))
+        except IOError:
             processes.manager.remove_lockfile(path)
-            raise web.notfound("No suitable changelog found")
-        
+            raise web.notfound("No debian directory found")
+
         snapshot_name = ch.package + "-" + ch.upstream_version
         snapshot_archive_name = ch.package + "_" + ch.upstream_version
 
