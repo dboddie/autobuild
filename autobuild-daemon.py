@@ -162,6 +162,7 @@ class Build(Base):
         try:
             repo_conf = config.Config("autobuild-repo")
             repo_path = repo_conf.lines[repo][0]
+            debian_dir = repo_conf.lines[repo][2]
             
             build_conf = config.Config("autobuild-builder")
             if not build_conf.check_label(chroot):
@@ -180,23 +181,13 @@ class Build(Base):
         current_dir = os.path.abspath(os.curdir)
 
         # Read the changelog for the project in the repository.
-        changelogs = glob.glob(os.path.join(repo_path, "debian*", "changelog"))
-        if not changelogs:
-            processes.manager.remove_lockfile(path)
-            raise web.notfound("No unique changelog found")
+        changelog_path = os.path.join(repo_path, debian_dir, "changelog")
         
-        for changelog_path in changelogs:
-            try:
-                ch = Changelog(open(changelog_path))
-                if ch.package == repo:
-                    break
-            except IOError:
-                pass
-        else:
-            # None of the changelogs matched the repository name.
+        if not os.path.exists(changelog_path):
             processes.manager.remove_lockfile(path)
-            raise web.notfound("No suitable changelog found")
+            raise web.notfound("No changelog found: %s/changelog" % debian_dir)
         
+        ch = Changelog(open(changelog_path))
         snapshot_name = ch.package + "-" + ch.upstream_version
         snapshot_archive_name = ch.package + "_" + ch.upstream_version
 
