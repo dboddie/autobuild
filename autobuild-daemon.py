@@ -180,13 +180,17 @@ class Build(Base):
         current_dir = os.path.abspath(os.curdir)
 
         # Read the changelog for the project in the repository.
-        changelogs = glob.glob(os.path.join(repo_path, "debian*", "changelog"))
-        if len(changelogs) != 1:
-            processes.manager.remove_lockfile(path)
-            raise web.notfound("No unique changelog found")
+        debian_changelog_path = os.path.join(repo_path, "debian", "changelog")
+        if os.path.exists(debian_changelog_path):
+            changelog_path = debian_changelog_path
+        else:
+            changelogs = glob.glob(os.path.join(repo_path, "debian*", "changelog"))
+            if len(changelogs) != 1:
+                processes.manager.remove_lockfile(path)
+                raise web.notfound("No unique changelog found")
+            changelog_path = changelogs[0]
 
         try:
-            changelog_path = changelogs[0]
             ch = Changelog(open(changelog_path))
         except IOError:
             processes.manager.remove_lockfile(path)
