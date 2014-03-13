@@ -20,9 +20,9 @@ if __name__ == "__main__":
         command = sys.argv[1]
         config = Config()
         
-        if command == "add" and len(sys.argv) == 4:
+        if command == "add" and len(sys.argv) == 6:
         
-            label, path = sys.argv[2:]
+            label, path, method, debian_dir = sys.argv[2:]
             path = os.path.abspath(path)
             
             # Check to see if the label or path is already known.
@@ -37,7 +37,7 @@ if __name__ == "__main__":
             config = Config()
             
             # Add the path to a list in the configuration file.
-            config.add(label, [path])
+            config.add(label, [path, method, debian_dir])
             config.save()
             
             sys.exit()
@@ -175,10 +175,12 @@ if __name__ == "__main__":
             path = config.lines[label][0]
             
             print label
-            print "Location:", path
+            print "Location:           ", path
+            print "Update method:      ", method
+            print "Changelog directory:", debian_dir
             sys.exit()
     
-    sys.stderr.write("Usage: %s add <label> <path>\n" % sys.argv[0])
+    sys.stderr.write("Usage: %s add <label> <path> <update method> <packaging directory name>\n" % sys.argv[0])
     sys.stderr.write("       %s remove <label>\n" % sys.argv[0])
     sys.stderr.write("       %s update <label>\n" % sys.argv[0])
     sys.stderr.write("       %s revision <label>\n" % sys.argv[0])
