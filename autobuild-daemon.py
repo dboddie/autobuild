@@ -230,10 +230,9 @@ class Build(Base):
         # Apply any fixes that may be required.
         fixes_path = os.path.join(fixes_dir.path, repo)
         if os.path.exists(fixes_path):
-            open(stdout_path, "w").write("Fixes file: " + fixes_path + "\n")
             try:
-                if os.system(fixes_path + " 1> " + commands.mkarg(stdout_path) + \
-                                          " 2> " + commands.mkarg(stderr_path)) != 0:
+                if os.system(fixes_path + " 1>> " + commands.mkarg(stdout_path) + \
+                                          " 2>> " + commands.mkarg(stderr_path)) != 0:
                     processes.manager.remove_lockfile(path)
                     raise web.notfound("Failed to fix snapshot before building")
             except IOError:
@@ -244,8 +243,8 @@ class Build(Base):
 
             # Child process (pid is 0)
             result = os.system("autobuild-builder.py debuild " + commands.mkarg(chroot) + \
-                               " 1> " + commands.mkarg(stdout_path) + \
-                               " 2> " + commands.mkarg(stderr_path))
+                               " 1>> " + commands.mkarg(stdout_path) + \
+                               " 2>> " + commands.mkarg(stderr_path))
 
             open(result_path, "w").write(str(result))
 
