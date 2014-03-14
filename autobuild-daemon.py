@@ -218,12 +218,13 @@ class Build(Base):
         
         # Apply any fixes that may be required.
         fixes_path = os.path.join(fixes_dir.path, repo)
-        try:
-            if os.system(fixes_path) != 0:
-                processes.manager.remove_lockfile(path)
-                raise web.notfound("Failed to fix snapshot before building")
-        except IOError:
-            pass
+        if os.path.exists(fixes_path):
+            try:
+                if os.system(fixes_path) != 0:
+                    processes.manager.remove_lockfile(path)
+                    raise web.notfound("Failed to fix snapshot before building")
+            except IOError:
+                pass
         
         pid = os.fork()
         if pid == 0:
