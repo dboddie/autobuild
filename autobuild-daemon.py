@@ -168,7 +168,7 @@ class Build(Base):
             if not build_conf.check_label(chroot):
                 raise web.notfound()
 
-            fixes_conf = config.Config("autobuild-fixes")
+            fixes_dir = config.Config("autobuild-fixes", load = False)
 
         except KeyError:
             raise web.notfound()
@@ -217,11 +217,15 @@ class Build(Base):
         os.chdir(snapshot_subdir)
         
         # Apply any fixes that may be required.
-        if fixes_conf.check_label(repo):
-            for command in fixes_conf.lines[repo]:
+        fixes_path = os.path.join(fixes_dir.path, repo)
+        try:
+            fixes = open(fixes_path)
+            for command in fixes.readlines():
                 if os.system(command) != 0:
                     processes.manager.remove_lockfile(path)
                     raise web.notfound("Failed to fix snapshot before building")
+        except IOError:
+            pass
         
         pid = os.fork()
         if pid == 0:
