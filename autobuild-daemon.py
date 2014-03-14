@@ -230,6 +230,7 @@ class Build(Base):
         # Apply any fixes that may be required.
         fixes_path = os.path.join(fixes_dir.path, repo)
         if os.path.exists(fixes_path):
+            open(stdout_path, "w").write("Fixes file: " + fixes_path + "\n")
             try:
                 if os.system(fixes_path + " 1> " + commands.mkarg(stdout_path) + \
                                           " 2> " + commands.mkarg(stderr_path)) != 0:
