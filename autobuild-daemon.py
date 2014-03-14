@@ -144,8 +144,8 @@ class Build(Base):
                 "<html>\n<head><title>Building $repo in $chroot</title></head>\n"
                 "<body>\n"
                 "<p>Started build of $repo for $chroot.</p>"
-                '<ul><li><a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stdout">stdout</a></li>\n'
-                '    <li><a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stderr">stderr</a></li></ul>\n'
+                '<ul><li><a href="/log?chroot=$(chroot)&repo=$(repo)&log=stdout">stdout</a></li>\n'
+                '    <li><a href="/log?chroot=$(chroot)&repo=$(repo)&log=stderr">stderr</a></li></ul>\n'
                 "</body>\n</html>\n")
     
     def GET(self):
