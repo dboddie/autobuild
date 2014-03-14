@@ -141,7 +141,12 @@ class Build(Base):
     """Handles requests to build the contents of a source repository in a chroot."""
 
     template = ("$def with (chroot, repo)\n"
-                "Started build of $repo for $chroot.")
+                "<html>\n<head><title>Building $repo in $chroot</title></head>\n"
+                "<body>\n"
+                "<p>Started build of $repo for $chroot.</p>"
+                '<ul><li><a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stdout">stdout</a></li>\n'
+                '    <li><a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stderr">stderr</a></li></ul>\n'
+                "</body>\n</html>\n")
     
     def GET(self):
     
@@ -212,7 +217,13 @@ class Build(Base):
             shutil.rmtree(snapshot_dir)
             processes.manager.remove_lockfile(path)
             raise web.notfound("Failed to create a snapshot archive")
-
+        
+        # Remove existing output/status log files.
+        stdout_path, stderr_path, result_path = processes.manager.output_paths(path)
+        for p in stdout_path, stderr_path, result_path:
+            if os.path.exists(p):
+                os.remove(p)
+            
         # Enter the snapshot directory.
         os.chdir(snapshot_subdir)
         
@@ -220,7 +231,8 @@ class Build(Base):
         fixes_path = os.path.join(fixes_dir.path, repo)
         if os.path.exists(fixes_path):
             try:
-                if os.system(fixes_path) != 0:
+                if os.system(fixes_path + " 1> " + commands.mkarg(stdout_path) + \
+                                          " 2> " + commands.mkarg(stderr_path)) != 0:
                     processes.manager.remove_lockfile(path)
                     raise web.notfound("Failed to fix snapshot before building")
             except IOError:
@@ -230,11 +242,6 @@ class Build(Base):
         if pid == 0:
 
             # Child process (pid is 0)
-            stdout_path, stderr_path, result_path = processes.manager.output_paths(path)
-            for p in stdout_path, stderr_path, result_path:
-                if os.path.exists(p):
-                    os.remove(p)
-            
             result = os.system("autobuild-builder.py debuild " + commands.mkarg(chroot) + \
                                " 1> " + commands.mkarg(stdout_path) + \
                                " 2> " + commands.mkarg(stderr_path))
