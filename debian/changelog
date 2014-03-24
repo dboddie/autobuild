@@ -1,3 +1,9 @@
+autobuild (0.2.0-1) unstable; urgency=low
+
+  * Releasing a more stable set of tools.
+
+ -- David Boddie <david.boddie@met.no>  Mon, 24 Mar 2014 13:45:48 +0100
+
 autobuild (0.1.0-1) unstable; urgency=low
 
   * Initial release of a collection of tools for building Debian packages
