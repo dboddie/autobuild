@@ -1,0 +1,11 @@
+Add support for obtaining and showing the available tags in a repository, and
+building the contents of the repository for a given tag.
+Make it possible to maintain a separate packaging repository for each source
+repository and only apply the packaging when a snapshot is made for building.
+
+Single project apt repositories.
+On-demand creation of archives containing build products for more convenient
+downloading.
+
+Add support for scheduling builds of packages that depend on a rebuilt
+package.
