@@ -231,10 +231,13 @@ class Build(Base):
         fixes_path = os.path.join(fixes_dir.path, repo)
         if os.path.exists(fixes_path):
             try:
-                if os.system(fixes_path + " 1>> " + commands.mkarg(stdout_path) + \
-                                          " 2>> " + commands.mkarg(stderr_path)) != 0:
+                result = os.system(fixes_path + " 1>> " + commands.mkarg(stdout_path) + \
+                                                " 2>> " + commands.mkarg(stderr_path))
+                if result != 0:
                     processes.manager.remove_lockfile(path)
+                    open(result_path, "w").write(str(result))
                     raise web.notfound("Failed to fix snapshot before building")
+
             except IOError:
                 pass
         
@@ -410,13 +413,25 @@ class Publish(Base):
     def publish(self, chroot, repo):
     
         c = config.Config(Publish.config)
-        if c.check_label(chroot + " " + repo):
-            repo_path, suite, component, repo_url = c.lines[chroot + " " + repo]
-        elif c.check_label(chroot):
-            repo_path, suite, component, repo_url = c.lines[chroot]
-        else:
-            raise web.notfound("No apt repository defined for %s" % chroot)
         
+        published = []
+
+        for label in chroot + " " + repo, chroot:
+        
+            if c.check_label(label):
+                published.append(self._publish(c, label, chroot, repo))
+            else:
+                continue
+        
+        
+        if not published:
+            raise web.notfound("No apt repository defined for %s" % chroot)
+
+        return "\n".join(published)
+    
+    def _publish(self, c, label, chroot, repo):
+    
+        repo_path, suite, component, repo_url = c.lines[label]
         repo_component_path = os.path.join(repo_path, "dists", suite, component)
         
         p = Products()
@@ -428,7 +443,7 @@ class Publish(Base):
         try:
             info = b.info(chroot)
         except KeyError:
-            raise notfound("No such chroot")
+            raise notfound("No such chroot: " + chroot)
         
         for (name, version), files in products:
 
