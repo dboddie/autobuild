@@ -410,10 +410,13 @@ class Publish(Base):
     def publish(self, chroot, repo):
     
         c = config.Config(Publish.config)
-        if not c.check_label(chroot):
+        if c.check_label(chroot + " " + repo):
+            repo_path, suite, component, repo_url = c.lines[chroot + " " + repo]
+        elif c.check_label(chroot):
+            repo_path, suite, component, repo_url = c.lines[chroot]
+        else:
             raise web.notfound("No apt repository defined for %s" % chroot)
         
-        repo_path, suite, component, repo_url = c.lines[chroot]
         repo_component_path = os.path.join(repo_path, "dists", suite, component)
         
         p = Products()

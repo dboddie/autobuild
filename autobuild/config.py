@@ -43,7 +43,13 @@ class Config:
         
         for line in f.readlines():
         
+            if line.startswith("#"):
+                continue
+
             at = line.find(": ")
+            if at == -1:
+                continue
+
             label, values = line[:at], line[at + 2:].rstrip().split("\t")
             self.lines[label] = values
     
