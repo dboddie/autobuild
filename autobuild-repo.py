@@ -145,10 +145,16 @@ if __name__ == "__main__":
                                    " 1> /dev/null 2> /dev/null")
                 # Remove the archive.
                 os.remove(archive_path)
+
             elif os.path.exists(os.path.join(path, ".svn")):
                 # Export the latest revision into the snapshot directory,
                 # which will be created by svn.
                 result = os.system("svn export . " + commands.mkarg(snapshot_dir))
+
+            elif os.path.exists(os.path.join(path, ".hg")):
+                # Export the latest revision into the snapshot directory.
+                result = os.system("hg archive " + commands.mkarg(snapshot_dir))
+
             else:
                 result = -1
             
