@@ -1,3 +1,9 @@
+autobuild (0.2.1-1) unstable; urgency=low
+
+  * Added support for Mercurial repositories.
+
+ -- David Boddie <david.boddie@met.no>  Fri, 11 Apr 2014 13:51:05 +0200
+
 autobuild (0.2.0-1) unstable; urgency=low
 
   * Releasing a more stable set of tools.

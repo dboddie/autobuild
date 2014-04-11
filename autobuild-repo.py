@@ -75,6 +75,9 @@ if __name__ == "__main__":
             
             elif os.path.exists(os.path.join(path, ".svn")):
                 result = os.system("svn up")
+            
+            elif os.path.exists(os.path.join(path, ".hg")):
+                result = os.system("hg pull")
             else:
                 result = -1
             
