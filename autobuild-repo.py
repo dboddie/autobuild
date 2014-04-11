@@ -137,14 +137,34 @@ if __name__ == "__main__":
                 # directory of the snapshot directory.
                 snapshot_parent_dir, snapshot_name = os.path.split(snapshot_dir)
                 archive_path = os.path.join(snapshot_parent_dir, snapshot_name + ".zip")
-                result = os.system("git archive --prefix=" + snapshot_name + "/ " + \
-                                   "-o " + commands.mkarg(archive_path) + " HEAD")
-                # Unpack the archive into the snapshot directory.
-                os.chdir(snapshot_parent_dir)
-                result = os.system("unzip " + commands.mkarg(archive_path) + \
-                                   " 1> /dev/null 2> /dev/null")
-                # Remove the archive.
-                os.remove(archive_path)
+                
+                submodules = [(snapshot_name, path)]
+
+                try:
+                    for line in open(".gitmodules").readlines():
+                        pieces = line.split("=")
+                        if len(pieces) == 2:
+                            key = pieces[0].strip()
+                            if key == "path":
+                                subpath = pieces[1].strip()
+                                submodules.append((os.path.join(snapshot_name, subpath),
+                                                   os.path.join(path, subpath)))
+                
+                except IOError:
+                    pass
+
+                for prefix, subpath in submodules:
+                
+                    os.chdir(subpath)
+                    result = os.system("git archive --prefix=" + prefix + "/ " + \
+                                       "-o " + commands.mkarg(archive_path) + " HEAD")
+                    
+                    # Unpack the archive into the snapshot directory.
+                    os.chdir(snapshot_parent_dir)
+                    result = os.system("unzip " + commands.mkarg(archive_path) + \
+                                       " 1> /dev/null 2> /dev/null")
+                    # Remove the archive.
+                    os.remove(archive_path)
 
             elif os.path.exists(os.path.join(path, ".svn")):
                 # Export the latest revision into the snapshot directory,

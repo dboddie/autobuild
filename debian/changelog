@@ -1,3 +1,9 @@
+autobuild (0.2.2-1) unstable; urgency=low
+
+  * Added support for git submodules.
+
+ -- David Boddie <david.boddie@met.no>  Fri, 11 Apr 2014 16:00:30 +0200
+
 autobuild (0.2.1-1) unstable; urgency=low
 
   * Added support for Mercurial repositories.
