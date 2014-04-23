@@ -82,3 +82,9 @@ Run the daemon using the following commands:
   export ADDR=`python -c "import os; print os.popen('/sbin/ifconfig').readlines()[1].strip().split()[1][5:]"`
   autobuild-daemon.py $ADDR:8080
 
+
+Development Resources
+---------------------
+
+pbuilder: https://wiki.debian.org/PbuilderTricks
+web.py: http://webpy.org/docs/0.3/templetor
