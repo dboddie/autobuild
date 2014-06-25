@@ -1,3 +1,9 @@
+autobuild (0.2.3-1) unstable; urgency=low
+
+  * Ensured that uninitialised git submodules are handled (ignored).
+
+ -- David Boddie <david.boddie@met.no>  Wed, 25 Jun 2014 15:56:48 +0200
+
 autobuild (0.2.2-1) unstable; urgency=low
 
   * Added support for git submodules.

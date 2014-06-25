@@ -155,6 +155,9 @@ if __name__ == "__main__":
 
                 for prefix, subpath in submodules:
                 
+                    if not os.path.exists(subpath) or not os.listdir(subpath):
+                        continue
+                    
                     os.chdir(subpath)
                     result = os.system("git archive --prefix=" + prefix + "/ " + \
                                        "-o " + commands.mkarg(archive_path) + " HEAD")
