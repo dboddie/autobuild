@@ -21,9 +21,10 @@ from debian.changelog import Changelog
 import daemon
 import web
 
-from autobuild import builder, config, processes
+from autobuild import builder, config, keyhandler, processes
 
 urls = ("/", "Overview",
+        "/info", "Info",
         "/update", "Update",
         "/revision", "Revision",
         "/repos", "Repos",
@@ -87,6 +88,74 @@ class Update(Base):
             return t(chroot)
         else:
             raise web.notfound()
+
+class Info(Base):
+
+    """Handles requests for information about chroots."""
+    
+    title = "Information"
+    template = ("$def with (title, dist, suite, url, public_key, this_url, key)\n"
+                "<html>\n<head><title>$title</title></head>\n"
+                "<body>\n"
+                "<h1>$title</h1>\n"
+                '<p>Location: <a href="$url">$url</a></p>\n'
+                "<h2>Usage</h2>\n"
+                "<p>Download this page and install the repository key using the following commands:</p>\n"
+                "<pre>\n"
+                'wget "$this_url" -O ${key}.key\n'
+                "sudo apt-key add ${key}.key\n"
+                "</pre>\n"
+                "<p>Copy the following lines into your <tt>/etc/apt/sources.list</tt> file:</p>"
+                "<pre>\n"
+                "deb $url $dist $suite\n"
+                "deb-src $url $dist $suite\n"
+                "</pre>\n"
+                "<p>Update the lists of packages on your system:</p>\n"
+                "<pre>\n"
+                "sudo apt-get update\n"
+                "</pre>\n"
+                "<h2>Repository Key</h2>\n"
+                "<pre>\n"
+                "$public_key\n"
+                "</pre>\n"
+                "</body>\n</html>\n")
+    
+    def GET(self):
+    
+        return self.POST()
+    
+    def POST(self):
+    
+        q = self.get_query()
+        
+        chroot = q.get("chroot")
+        if not chroot:
+            raise web.notfound()
+        
+        return self.info_chroot(chroot[0])
+    
+    def info_chroot(self, chroot):
+
+        c = config.Config("autobuild-apt-repo")
+        try:
+            path, dist, suite, url = c.lines[chroot]
+        except KeyError:
+            raise web.notfound()
+        
+        c = config.Config("autobuild-builder")
+        try:
+            template, chroots, dist, rc, signing_key = c.lines[chroot]
+        except KeyError:
+            raise web.notfound()
+        
+        try:
+            public_key = keyhandler.get_key(signing_key)
+        except KeyError:
+            raise web.notfound()
+        
+        t = web.template.Template(self.template)
+        t.content_type = "text/html"
+        return t(self.title, dist, suite, url, public_key, web.ctx.realhome + web.ctx.fullpath, signing_key)
 
 class Revision(Base):
 
@@ -501,7 +570,8 @@ class Overview:
                 "    <tr>\n"
                 "    <th></th>\n"
                 "$for chroot in chroots:\n"
-                '    <th>$chroot <span="commands">(<a href="/update?chroot=$chroot">update</a>)</span></th>\n'
+                '    <th>$chroot <span="commands">(<a href="/info?chroot=$chroot">info</a>, '
+                '                                  <a href="/update?chroot=$chroot">update</a>)</span></th>\n'
                 "</tr>\n"
                 "$for repo in repos:\n"
                 "    <tr>\n"
