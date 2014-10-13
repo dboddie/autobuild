@@ -21,7 +21,7 @@ from debian.changelog import Changelog
 import daemon
 import web
 
-from autobuild import builder, config, processes
+from autobuild import builder, config, keyhandler, processes
 
 urls = ("/", "Overview",
         "/info", "Info",
@@ -94,15 +94,29 @@ class Info(Base):
     """Handles requests for information about chroots."""
     
     title = "Information"
-    template = ("$def with (title, dist, suite, url)\n"
+    template = ("$def with (title, dist, suite, url, public_key, this_url, key)\n"
                 "<html>\n<head><title>$title</title></head>\n"
                 "<body>\n"
                 "<h1>$title</h1>\n"
                 '<p>Location: <a href="$url">$url</a></p>\n'
+                "<h2>Usage</h2>\n"
+                "<p>Download this page and install the repository key using the following commands:</p>\n"
+                "<pre>\n"
+                'wget "$this_url" -O ${key}.key\n'
+                "sudo apt-key add ${key}.key\n"
+                "</pre>\n"
                 "<p>Copy the following lines into your <tt>/etc/apt/sources.list</tt> file:</p>"
                 "<pre>\n"
                 "deb $url $dist $suite\n"
                 "deb-src $url $dist $suite\n"
+                "</pre>\n"
+                "<p>Update the lists of packages on your system:</p>\n"
+                "<pre>\n"
+                "sudo apt-get update\n"
+                "</pre>\n"
+                "<h2>Repository Key</h2>\n"
+                "<pre>\n"
+                "$public_key\n"
                 "</pre>\n"
                 "</body>\n</html>\n")
     
@@ -127,10 +141,21 @@ class Info(Base):
             path, dist, suite, url = c.lines[chroot]
         except KeyError:
             raise web.notfound()
-
+        
+        c = config.Config("autobuild-builder")
+        try:
+            template, chroots, dist, rc, signing_key = c.lines[chroot]
+        except KeyError:
+            raise web.notfound()
+        
+        try:
+            public_key = keyhandler.get_key(signing_key)
+        except KeyError:
+            raise web.notfound()
+        
         t = web.template.Template(self.template)
         t.content_type = "text/html"
-        return t(self.title, dist, suite, url)
+        return t(self.title, dist, suite, url, public_key, web.ctx.realhome + web.ctx.fullpath, signing_key)
 
 class Revision(Base):
 
