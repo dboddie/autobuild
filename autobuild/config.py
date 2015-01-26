@@ -67,7 +67,7 @@ class Config:
             if at == -1:
                 continue
 
-            label, values = line[:at], line[at + 2:].rstrip().split("\t")
+            label, values = line[:at], line[at + 2:].rstrip("\n").split("\t")
             self.lines[label] = values
     
     def save(self):

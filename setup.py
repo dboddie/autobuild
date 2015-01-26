@@ -24,7 +24,7 @@ setup(
     author="David Boddie",
     author_email="david.boddie@met.no",
     url="http://www.met.no/",
-    version="0.1.0",
+    version="0.2.0",
     packages=["autobuild"],
     scripts=["autobuild-builder.py",
              "autobuild-repo.py",

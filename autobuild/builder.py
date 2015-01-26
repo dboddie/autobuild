@@ -173,7 +173,13 @@ class Builder:
         # Check to see if the chroot already exists.
         self.config.check_label(label)
         
-        template, install_dir, distribution, pbuilderrc, key_id = self.config.lines[label][:5]
+        values = self.config.lines[label]
+        template, install_dir, distribution, pbuilderrc = values[:4]
+        if len(values) > 4:
+            key_id = values[4]
+        else:
+            key_id = ""
+        
         hooks_dir = os.path.join(install_dir, label, "hooks")
         products_dir = os.path.join(install_dir, label, "cache", "result")
         
