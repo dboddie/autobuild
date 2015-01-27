@@ -298,7 +298,7 @@ class Builder:
             os.chdir(old_directory)
             return result
     
-    def debuild(self, label):
+    def debuild(self, label, build_type = "default"):
     
         # Check to see if the chroot already exists.
         self.config.check_label(label)
@@ -309,17 +309,23 @@ class Builder:
         if not os.path.isdir("debian"):
             return 1
         
+        config_args = "--configfile " + commands.mkarg(pbuilderrc)
+
         # Run pdebuild with options for signing if a key ID was supplied.
         if len(options) == 5:
             key_id = options[4]
-            result = os.system("sudo pdebuild --auto-debsign --debsign-k " + \
-                               commands.mkarg(key_id) + " "
-                               "--configfile " + commands.mkarg(pbuilderrc))
+            key_sign_args = "--auto-debsign --debsign-k " + commands.mkarg(key_id)
         else:
-            result = os.system("sudo pdebuild --configfile " + \
-                               commands.mkarg(pbuilderrc))
-        if result == 0:
+            key_sign_args = ""
         
+        if build_type == "source":
+            build_type_args = '--debbuildopts "-S"'
+        else:
+            build_type_args = ""
+
+        result = os.system("sudo " + env_args + " pdebuild " + key_sign_args + \
+                               " " + config_args + " " + build_type_args)
+        if result == 0:
             products_dir = os.path.join(install_dir, label, "cache", "result")
             print "Build products can be found in", products_dir
 

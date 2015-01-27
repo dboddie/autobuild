@@ -239,12 +239,20 @@ class Build(Base):
 
         chroot = q.get("chroot")
         repo = q.get("repo")
+        build_type = q.get("build_type")
         if not chroot or not repo:
             raise web.notfound()
         
-        return self.build(chroot[0], repo[0])
+        if build_type:
+            build_type = build_type[0]
+            if build_type not in ("source", "default"):
+                raise web.notfound("Invalid build type specified.")
+        else:
+            build_type = "default"
 
-    def build(self, chroot, repo):
+        return self.build(chroot[0], repo[0], build_type)
+
+    def build(self, chroot, repo, build_type):
     
         global process_manager
         current_dir = os.path.abspath(os.curdir)
@@ -330,7 +338,9 @@ class Build(Base):
         if pid == 0:
 
             # Child process (pid is 0)
-            result = os.system("autobuild-builder.py debuild " + commands.mkarg(chroot) + \
+            result = os.system("autobuild-builder.py debuild " + \
+                               commands.mkarg(chroot) + \
+                               commands.mkarg(build_type) + \
                                " 1>> " + commands.mkarg(stdout_path) + \
                                " 2>> " + commands.mkarg(stderr_path))
 

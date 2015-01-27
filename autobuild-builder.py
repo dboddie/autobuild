@@ -99,7 +99,7 @@ if __name__ == "__main__":
         
             sys.exit(run_result(builder.build, sys.argv[2:4]))
         
-        elif command == "debuild" and len(sys.argv) == 3:
+        elif command == "debuild" and not 3 <= len(sys.argv) <= 4:
         
             sys.exit(run_result(builder.debuild, sys.argv[2:3]))
         
@@ -116,6 +116,6 @@ if __name__ == "__main__":
     sys.stderr.write("       %s hooks <label>\n" % sys.argv[0])
     sys.stderr.write("       %s products <label>\n" % sys.argv[0])
     sys.stderr.write("       %s build <label> <package name or .dsc file>\n" % sys.argv[0])
-    sys.stderr.write("       %s debuild <label>\n" % sys.argv[0])
+    sys.stderr.write("       %s debuild <label> [source]\n" % sys.argv[0])
     sys.stderr.write("       %s remove <label> <package name>\n" % sys.argv[0])
     sys.exit(1)
