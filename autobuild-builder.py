@@ -99,7 +99,7 @@ if __name__ == "__main__":
         
             sys.exit(run_result(builder.build, sys.argv[2:4]))
         
-        elif command == "debuild" and not 3 <= len(sys.argv) <= 4:
+        elif command == "debuild" and 3 <= len(sys.argv) <= 4:
         
             sys.exit(run_result(builder.debuild, sys.argv[2:3]))
         
