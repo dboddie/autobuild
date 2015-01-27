@@ -234,5 +234,7 @@ if __name__ == "__main__":
     sys.stderr.write("       %s revision <label>\n" % sys.argv[0])
     sys.stderr.write("       %s snapshot <label> <path>\n" % sys.argv[0])
     sys.stderr.write("       %s list\n" % sys.argv[0])
-    sys.stderr.write("       %s info <label>\n" % sys.argv[0])
+    sys.stderr.write("       %s info <label>\n\n" % sys.argv[0])
+    sys.stderr.write("    <packaging directory name> is the name of the directory within the repository\n"
+                     "    that contains the distribution packaging files. For example: debian\n\n")
     sys.exit(1)
