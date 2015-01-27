@@ -397,12 +397,19 @@ class Products(Base):
         c = config.Config(Chroots.config)
         b = builder.Builder(c)
         
+        c = config.Config(Repos.config)
+        info = c.lines[repo]
+        if len(info) == 4:
+            published_name = info[3]
+        else:
+            published_name = repo
+        
         try:
             products = b.products(chroot)
         except KeyError:
             raise notfound("No such chroot")
         
-        keys = filter(lambda key: key[0].startswith(repo), products.keys())
+        keys = filter(lambda key: key[0].startswith(published_name), products.keys())
         keys.sort()
         
         p = []
