@@ -319,8 +319,10 @@ class Builder:
             key_sign_args = ""
         
         if build_type == "source":
+            env_args = 'ARCHITECTURE=source'
             build_type_args = '--debbuildopts "-S"'
         else:
+            env_args = ""
             build_type_args = ""
 
         result = os.system("sudo " + env_args + " pdebuild " + key_sign_args + \
