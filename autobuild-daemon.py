@@ -566,7 +566,7 @@ class Overview:
     """Handles requests for an overview of the available chroots, source repositories
     and the status of any builds."""
 
-    template = ("$def with (title, chroots, repos, status)\n"
+    template = ("$def with (title, chroots, repos, apt_repos, status)\n"
                 "<html>\n<head><title>$title</title>\n"
                 '<style type="text/css">\n'
                 '  .success { background-color: #c0f0c0; color: black }\n'
@@ -591,7 +591,7 @@ class Overview:
                 '      <span class="commands">(<a href="/revision?repo=$repo">revision</a>,\n'
                 '                              <a href="/update?repo=$repo">update</a>)</span></th>\n'
                 "    $for chroot in chroots:\n"
-                "        $status(chroot, repo)\n"
+                "        $status(chroot, repo, apt_repos)\n"
                 "    </tr>\n"
                 "</table>\n"
                 "</body>\n</html>\n")
@@ -604,12 +604,14 @@ class Overview:
         c = config.Config(Repos.config)
         repos = c.lines.keys()
         repos.sort()
+        c = config.Config(Publish.config)
+        apt_repos = c.lines.keys()
         
         t = web.template.Template(self.template)
         t.content_type = "text/html"
-        return t("Overview", chroots, repos, self.status)
+        return t("Overview", chroots, repos, apt_repos, self.status)
 
-    def status(self, chroot, repo):
+    def status(self, chroot, repo, apt_repos):
     
         status, time_str = processes.manager.status(chroot, repo)
         if status == "Building":
@@ -617,13 +619,18 @@ class Overview:
                     '<span class="commands">(<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stdout">stdout</a>, '
                     '<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stderr">stderr</a>)</span></td>') % \
                     {"chroot": chroot, "repo": repo, "time": time_str}
+        
         elif status == "Built":
-            return ('<td class="success">Built (%(time)s)<br />\n'
-                    '<span class="commands">(<a href="/products?chroot=%(chroot)s&repo=%(repo)s">products</a>, '
-                    '<a href="/build?chroot=%(chroot)s&repo=%(repo)s">rebuild</a>, '
-                    '<a href="/build?chroot=%(chroot)s&repo=%(repo)s&build_type=source">source build</a>, '
-                    '<a href="/publish?chroot=%(chroot)s&repo=%(repo)s">publish</a>)</span></td>') % \
-                    {"chroot": chroot, "repo": repo, "time": time_str}
+            t = ('<td class="success">Built (%(time)s)<br />\n'
+                 '<span class="commands">(<a href="/products?chroot=%(chroot)s&repo=%(repo)s">products</a>, '
+                 '<a href="/build?chroot=%(chroot)s&repo=%(repo)s">rebuild</a>, '
+                 '<a href="/build?chroot=%(chroot)s&repo=%(repo)s&build_type=source">source build</a>')
+            if chroot in apt_repos:
+                 t += ', <a href="/publish?chroot=%(chroot)s&repo=%(repo)s">publish</a>'
+            
+            t += ')</span></td>'
+            return t % {"chroot": chroot, "repo": repo, "time": time_str}
+        
         elif status == "Failed":
             return ('<td class="failure">Failed (%(time)s)<br />\n'
                     '<span class="commands">(<a href="/build?chroot=%(chroot)s&repo=%(repo)s">build</a>, '
