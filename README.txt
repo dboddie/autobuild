@@ -36,6 +36,15 @@ build   ALL=(ALL:ALL) NOPASSWD: /usr/bin/autobuild-builder.py, /usr/sbin/pbuilde
 
 On some systems, pbuilder is in the /usr/bin directory.
 
+To enable source-only package creation, you need to allow the ARCHITECTURE
+environment variable in the /etc/sudoers file by changing the line
+
+Defaults    env_reset
+
+to
+
+Defaults    env_keep += "ARCHITECTURE"
+
 The autobuild and python-apt-repo packages need to be installed.
 
 If you want to reuse packages that have been built and published to a repository

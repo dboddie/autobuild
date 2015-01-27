@@ -1,4 +1,5 @@
 MIRRORSITE=http://no.archive.ubuntu.com/ubuntu
+OTHERMIRROR='deb http://no.archive.ubuntu.com/ubuntu precise universe'
 CCACHEDIR=%(install dir)s/ccache
 
 APTCACHE=%(install dir)s/%(label)s/cache/aptcache
