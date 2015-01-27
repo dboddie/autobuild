@@ -619,17 +619,22 @@ class Overview:
             return ('<td class="success">Built (%(time)s)<br />\n'
                     '<span class="commands">(<a href="/products?chroot=%(chroot)s&repo=%(repo)s">products</a>, '
                     '<a href="/build?chroot=%(chroot)s&repo=%(repo)s">rebuild</a>, '
+                    '<a href="/build?chroot=%(chroot)s&repo=%(repo)s&build_type=source">source build</a>, '
                     '<a href="/publish?chroot=%(chroot)s&repo=%(repo)s">publish</a>)</span></td>') % \
                     {"chroot": chroot, "repo": repo, "time": time_str}
         elif status == "Failed":
             return ('<td class="failure">Failed (%(time)s)<br />\n'
                     '<span class="commands">(<a href="/build?chroot=%(chroot)s&repo=%(repo)s">build</a>, '
+                    '<a href="/build?chroot=%(chroot)s&repo=%(repo)s&build_type=source">source build</a>, '
                     '<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stdout">stdout</a>, '
                     '<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stderr">stderr</a>)</span></td>') % \
                     {"chroot": chroot, "repo": repo, "time": time_str}
         else:
-            return '<td><span class="commands">(<a href="/build?chroot=%(chroot)s&repo=%(repo)s">build</a>)</span></td>' % \
-                   {"chroot": chroot, "repo": repo}
+            return ('<td>\n'
+                    '<span class="commands">(<a href="/build?chroot=%(chroot)s&repo=%(repo)s">build</a>, '
+                    '<a href="/build?chroot=%(chroot)s&repo=%(repo)s&build_type=source">source build</a>)'
+                    '</span></td>') % \
+                    {"chroot": chroot, "repo": repo}
 
 
 if __name__ == "__main__":
