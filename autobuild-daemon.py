@@ -339,7 +339,7 @@ class Build(Base):
 
             # Child process (pid is 0)
             result = os.system("autobuild-builder.py debuild " + \
-                               commands.mkarg(chroot) + \
+                               commands.mkarg(chroot) + " " + \
                                commands.mkarg(build_type) + \
                                " 1>> " + commands.mkarg(stdout_path) + \
                                " 2>> " + commands.mkarg(stderr_path))
