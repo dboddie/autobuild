@@ -32,7 +32,7 @@ urls = ("/", "Overview",
         "/build", "Build",
         "/log", "Log",
         "/products", "Products",
-        "/product", "Product",
+        "/product/(.*)", "Product",
         "/publish", "Publish")
 
 class Base:
@@ -371,7 +371,7 @@ class Products(Base):
                 "$for (name, version), files in products:\n"
                 "    <dt>$name $version</dt>\n"
                 "    $for file in files:\n"
-                '        <dd><a href="$("/product?chroot=%s&file=%s" % (chroot, file["name"]))">$file["name"]</a></dd>\n'
+                '        <dd><a href="$("/product/%s/%s" % (chroot, file["name"]))">$file["name"]</a></dd>\n'
                 "</dl>\n"
                 "</body>\n</html>\n")
     
@@ -421,17 +421,19 @@ class Product(Base):
 
     """Handles requests for specific build products."""
 
-    def GET(self):
+    def GET(self, path):
     
-        q = self.get_query()
+        pieces = path.split("/")
+        if len(pieces) != 2:
+            raise web.notfound()
         
-        chroot = q.get("chroot")
-        file_name = q.get("file")
+        chroot, file_name = pieces
+        
         if not chroot or not file_name:
             raise web.notfound()
         
-        web.header("Content-Disposition", 'attachment; filename="%s"' % file_name[0])
-        return self.product(chroot[0], file_name[0])
+        web.header("Content-Disposition", 'attachment; filename="%s"' % file_name)
+        return self.product(chroot, file_name)
 
     def product(self, chroot, file_name):
 
