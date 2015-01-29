@@ -65,7 +65,9 @@ Add it to the apt keyring:
 
 Set up chroots using the autobuild-builder.py tool. For example:
 
-  autobuild-builder.py create precise-amd64 templates/metno /home/build/chroots precise
+  autobuild-builder.py create precise-amd64 templates/metno /home/build/chroots precise <key>
+
+where <key> is the ID of the public key that will be used to sign packages.
 
 The repositories to manage need to be checked out and registered with the
 autobuild-repo.py tool. For example:

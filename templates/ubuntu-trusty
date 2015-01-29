@@ -3,6 +3,8 @@ OTHERMIRROR='deb http://no.archive.ubuntu.com/ubuntu trusty universe'
 CCACHEDIR=%(install dir)s/ccache
 
 APTCACHE=%(install dir)s/%(label)s/cache/aptcache
+APTKEYRINGS=/etc/apt/trusted.gpg
+ARCHITECTURE=amd64
 BASETGZ=%(install dir)s/%(label)s/cache/base.tgz
 BUILDPLACE=%(install dir)s/%(label)s/cache/build/
 BUILDRESULT=%(install dir)s/%(label)s/cache/result/
