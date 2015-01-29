@@ -67,7 +67,7 @@ Set up chroots using the autobuild-builder.py tool. For example:
 
   autobuild-builder.py create precise-amd64 templates/metno /home/build/chroots precise
 
-The repositories to manage need to be checkout out and registered with the
+The repositories to manage need to be checked out and registered with the
 autobuild-repo.py tool. For example:
 
   autobuild-repo.py add diana /home/build/local/src/diana-trunk
@@ -81,10 +81,17 @@ using the following command:
 
   python -c "open('.autobuild-apt-repo', 'w').write('precise-amd64: /home/build/public_html/repo\tprecise\tcontrib\thttp://localhost/~build/repo')
 
-Copy apt repository signing keys to the build user's home directory and import
+Copy the apt repository signing keys to the build user's home directory and import
 them using the following command:
 
   gpg --import sign*.key
+
+Once the first package has been built and published to the apt repository, update
+the chroot with the location of the apt repository, and include the standard
+universe repository as well:
+
+  sudo autobuild-builder.py update --override-config --othermirror \
+    "deb http://no.archive.ubuntu.com/ubuntu precise universe | deb http://localhost/~build/lp-repo precise contrib"
 
 Run the daemon using the following commands:
 
@@ -96,4 +103,6 @@ Development Resources
 ---------------------
 
 pbuilder: https://wiki.debian.org/PbuilderTricks
-web.py: http://webpy.org/docs/0.3/templetor
+		  http://www.netfort.gr.jp/~dancer/software/pbuilder-doc/pbuilder-doc.html
+		  https://wiki.ubuntu.com/PbuilderHowto
+web.py:	  http://webpy.org/docs/0.3/templetor

@@ -83,7 +83,7 @@ class Builder:
 
         self.config = config
     
-    def create(self, label, template, install_dir, distribution):
+    def create(self, label, template, install_dir, distribution, key_id):
     
         install_dir = os.path.abspath(install_dir)
         install_label_dir = os.path.join(install_dir, label)
@@ -91,7 +91,7 @@ class Builder:
         pbuilderrc = os.path.join(install_label_dir, "pbuilderrc")
         
         # Check to see if the chroot already exists.
-        if self.config.check(label, [template, install_dir, distribution, pbuilderrc]):
+        if self.config.check(label, [template, install_dir, distribution, pbuilderrc, key_id]):
         
             raise AutobuildError, "A chroot already exists with that configuration."
         
@@ -118,7 +118,7 @@ class Builder:
             # after we have read it.
             
             # Add the chroot to a list in the configuration file.
-            self.config.add(label, [template, install_dir, distribution, pbuilderrc])
+            self.config.add(label, [template, install_dir, distribution, pbuilderrc, key_id])
             self.config.save()
         
         else:
@@ -142,7 +142,7 @@ class Builder:
         self.config.remove(label)
         self.config.save()
     
-    def update(self, label):
+    def update(self, label, options = []):
     
         # Check to see if the chroot already exists.
         self.config.check_label(label)
@@ -150,8 +150,11 @@ class Builder:
         template, install_dir, distribution, pbuilderrc = self.config.lines[label][:4]
         install_label_dir = os.path.join(install_dir, label)
         
+        options = " ".join(map(commands.mkarg, options))
+        
         # Update the chroot by running pbuilder.
-        if os.system("pbuilder update --configfile " + commands.mkarg(pbuilderrc)) == 0:
+        if os.system("pbuilder update --configfile " + commands.mkarg(pbuilderrc) + \
+                     " " + options) == 0:
             print "chroot '%s' updated successfully." % label
         else:
             raise AutobuildError, "Failed to update chroot '%s'." % label

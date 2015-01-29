@@ -44,7 +44,7 @@ if __name__ == "__main__":
         command = sys.argv[1]
         builder = Builder()
         
-        if command == "create" and len(sys.argv) == 6:
+        if command == "create" and len(sys.argv) == 7:
         
             sys.exit(run_result(builder.create, sys.argv[2:]))
         
@@ -56,9 +56,9 @@ if __name__ == "__main__":
         
             sys.exit(run(builder.login, sys.argv[2:3]))
         
-        elif command == "update" and len(sys.argv) == 3:
+        elif command == "update" and len(sys.argv) >= 3:
         
-            sys.exit(run(builder.update, sys.argv[2:3]))
+            sys.exit(run(builder.update, [sys.argv[2], sys.argv[3:]]))
         
         elif command == "info" and len(sys.argv) == 3:
         
@@ -107,7 +107,7 @@ if __name__ == "__main__":
         
             sys.exit(run(builder.remove, sys.argv[2:4]))
     
-    sys.stderr.write("Usage: %s create <label> <template> <install dir> <distribution>\n" % sys.argv[0])
+    sys.stderr.write("Usage: %s create <label> <template> <install dir> <distribution> <signing key>\n" % sys.argv[0])
     sys.stderr.write("       %s destroy <label>\n" % sys.argv[0])
     sys.stderr.write("       %s login <label>\n" % sys.argv[0])
     sys.stderr.write("       %s update <label>\n" % sys.argv[0])
