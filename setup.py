@@ -28,5 +28,6 @@ setup(
     packages=["autobuild"],
     scripts=["autobuild-builder.py",
              "autobuild-repo.py",
-             "autobuild-www.cgi"]
+             "autobuild-www.cgi",
+             "autobuild-pdebuild"]
     )

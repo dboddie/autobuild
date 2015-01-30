@@ -328,7 +328,7 @@ class Builder:
             env_args = ""
             build_type_args = ""
 
-        result = os.system("sudo " + env_args + " pdebuild " + key_sign_args + \
+        result = os.system("sudo " + env_args + " autobuild-pdebuild " + key_sign_args + \
                                " " + config_args + " " + build_type_args)
         if result == 0:
             products_dir = os.path.join(install_dir, label, "cache", "result")
