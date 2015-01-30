@@ -322,11 +322,13 @@ class Builder:
             key_sign_args = ""
         
         if build_type == "source":
+            pdebuild = "autobuild-pdebuild"
             build_type_args = '--debbuildopts "-S"'
         else:
+            pdebuild = "pdebuild"
             build_type_args = ""
 
-        result = os.system("autobuild-pdebuild " + key_sign_args + \
+        result = os.system("sudo " + pdebuild + " " + key_sign_args + \
                                " " + config_args + " " + build_type_args)
         if result == 0:
             products_dir = os.path.join(install_dir, label, "cache", "result")

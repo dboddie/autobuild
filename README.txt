@@ -32,7 +32,7 @@ Configuring the build system
 
 On the build machine, the /etc/sudoers file should include the following line:
 
-build   ALL=(ALL:ALL) NOPASSWD: /usr/bin/autobuild-builder.py, /usr/sbin/pbuilder, /usr/bin/pdebuild
+build   ALL=(ALL:ALL) NOPASSWD: /usr/bin/autobuild-builder.py, /usr/sbin/pbuilder, /usr/bin/pdebuild, /usr/bin/autobuild-pdebuild
 
 On some systems, pbuilder is in the /usr/bin directory.
 
