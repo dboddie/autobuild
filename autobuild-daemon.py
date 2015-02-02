@@ -324,8 +324,9 @@ class Build(Base):
         fixes_path = os.path.join(fixes_dir.path, repo)
         if os.path.exists(fixes_path):
             try:
-                result = os.system(fixes_path + " 1>> " + commands.mkarg(stdout_path) + \
-                                                " 2>> " + commands.mkarg(stderr_path))
+                result = os.system(fixes_path + " " + commands.mkarg(chroot) + \
+                                   " 1>> " + commands.mkarg(stdout_path) + \
+                                   " 2>> " + commands.mkarg(stderr_path))
                 if result != 0:
                     processes.manager.remove_lockfile(path)
                     open(result_path, "w").write(str(result))
