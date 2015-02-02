@@ -245,7 +245,7 @@ class Build(Base):
         
         if build_type:
             build_type = build_type[0]
-            if build_type not in ("source", "default"):
+            if build_type not in ("source", "source-changes", "default"):
                 raise web.notfound("Invalid build type specified.")
         else:
             build_type = "default"
@@ -631,7 +631,8 @@ class Overview:
             t = ('<td class="success">Built (%(time)s)<br />\n'
                  '<span class="commands">(<a href="/products?chroot=%(chroot)s&repo=%(repo)s">products</a>, '
                  '<a href="/build?chroot=%(chroot)s&repo=%(repo)s">rebuild</a>, '
-                 '<a href="/build?chroot=%(chroot)s&repo=%(repo)s&build_type=source">source build</a>')
+                 '<a href="/build?chroot=%(chroot)s&repo=%(repo)s&build_type=source">full source</a>, '
+                 '<a href="/build?chroot=%(chroot)s&repo=%(repo)s&build_type=source-changes">source changes</a>')
             if chroot in apt_repos:
                  t += ', <a href="/publish?chroot=%(chroot)s&repo=%(repo)s">publish</a>'
             
@@ -641,14 +642,16 @@ class Overview:
         elif status == "Failed":
             return ('<td class="failure">Failed (%(time)s)<br />\n'
                     '<span class="commands">(<a href="/build?chroot=%(chroot)s&repo=%(repo)s">build</a>, '
-                    '<a href="/build?chroot=%(chroot)s&repo=%(repo)s&build_type=source">source build</a>, '
+                    '<a href="/build?chroot=%(chroot)s&repo=%(repo)s&build_type=source">full source</a>, '
+                    '<a href="/build?chroot=%(chroot)s&repo=%(repo)s&build_type=source-changes">source changes</a>, '
                     '<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stdout">stdout</a>, '
                     '<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stderr">stderr</a>)</span></td>') % \
                     {"chroot": chroot, "repo": repo, "time": time_str}
         else:
             return ('<td>\n'
                     '<span class="commands">(<a href="/build?chroot=%(chroot)s&repo=%(repo)s">build</a>, '
-                    '<a href="/build?chroot=%(chroot)s&repo=%(repo)s&build_type=source">source build</a>)'
+                    '<a href="/build?chroot=%(chroot)s&repo=%(repo)s&build_type=source">full source</a>, '
+                    '<a href="/build?chroot=%(chroot)s&repo=%(repo)s&build_type=source-changes">source changes</a>)'
                     '</span></td>') % \
                     {"chroot": chroot, "repo": repo}
 

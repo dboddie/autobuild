@@ -324,6 +324,9 @@ class Builder:
         if build_type == "source":
             pdebuild = "autobuild-pdebuild"
             build_type_args = '--debbuildopts "-S"'
+        elif build_type == "source-changes":
+            pdebuild = "autobuild-pdebuild"
+            build_type_args = '--debbuildopts "-S -sd"'
         else:
             pdebuild = "pdebuild"
             build_type_args = ""
