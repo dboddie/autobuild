@@ -89,7 +89,9 @@ if __name__ == "__main__":
             os.chdir(path)
             if os.path.exists(os.path.join(path, ".git")):
                 if method == "rebase":
-                    result = os.system("git rebase")
+                    result = os.system("git fetch")
+                    if result == 0:
+                        result = os.system("git rebase")
                 else:
                     result = os.system("git pull")
             
