@@ -528,7 +528,6 @@ class Publish(Base):
             else:
                 continue
         
-        
         if not published:
             raise web.notfound("No apt repository defined for %s" % chroot)
 
@@ -567,7 +566,7 @@ class Publish(Base):
         if result != 0:
             raise web.notfound("Failed to sign the apt repository")
         
-        return "Files added to %s" % repo_url
+        return "Files added to %s (%s):\n%s\n" % (repo_url, repo_component_path, "\n".join(file_names))
 
 class Overview:
 
