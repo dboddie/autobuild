@@ -549,6 +549,8 @@ class Publish(Base):
         except KeyError:
             raise notfound("No such chroot: " + chroot)
         
+        all_file_names = []
+
         for (name, version), files in products:
 
             file_names = map(lambda f: os.path.join(info["products"], f["name"]), files)
@@ -557,6 +559,8 @@ class Publish(Base):
                                " " + " ".join(map(commands.mkarg, file_names)))
             if result != 0:
                 raise web.notfound("Failed to add %s files to the apt repository" % name)
+
+            all_file_names += file_names
         
         result = os.system("python-apt-repo-setup.py update " + commands.mkarg(repo_path))
         if result != 0:
@@ -566,7 +570,7 @@ class Publish(Base):
         if result != 0:
             raise web.notfound("Failed to sign the apt repository")
         
-        return "Files added to %s (%s):\n%s\n" % (repo_url, repo_component_path, "\n".join(file_names))
+        return "Files added to %s (%s):\n%s\n" % (repo_url, repo_component_path, "\n".join(all_file_names))
 
 class Overview:
 
