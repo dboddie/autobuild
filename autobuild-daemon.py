@@ -581,6 +581,7 @@ class Overview:
                 "<html>\n<head><title>$title</title>\n"
                 '<style type="text/css">\n'
                 '  .success { background-color: #c0f0c0; color: black }\n'
+                '  .started { background-color: #f0f0c0; color: black }\n'
                 '  .failure { background-color: #f0c0c0; color: black }\n'
                 '  .commands { font-size: smaller }\n'
                 '  table { border: 1px solid #808080 }\n'
@@ -626,7 +627,7 @@ class Overview:
     
         status, time_str = processes.manager.status(chroot, repo)
         if status == "Building":
-            return ("<td>Started (%(time)s)<br />\n"
+            return ('<td class="started">Started (%(time)s)<br />\n'
                     '<span class="commands">(<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stdout">stdout</a>, '
                     '<a href="/log?chroot=%(chroot)s&repo=%(repo)s&log=stderr">stderr</a>)</span></td>') % \
                     {"chroot": chroot, "repo": repo, "time": time_str}
