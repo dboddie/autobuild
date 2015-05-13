@@ -581,7 +581,7 @@ class Overview:
                 "<html>\n<head><title>$title</title>\n"
                 '<style type="text/css">\n'
                 '  .success { background-color: #c0f0c0; color: black }\n'
-                '  .started { background-color: #f0f080; color: black }\n'
+                '  .started { background-color: #f0c080; color: black }\n'
                 '  .failure { background-color: #f0c0c0; color: black }\n'
                 '  .commands { font-size: smaller }\n'
                 '  table { border: 1px solid #808080 }\n'
