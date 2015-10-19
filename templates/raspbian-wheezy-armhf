@@ -1,0 +1,15 @@
+MIRRORSITE=http://archive.raspbian.org/raspbian
+OTHERMIRROR='deb http://archive.raspbian.org/raspbian wheezy main contrib non-free rpi'
+CCACHEDIR=%(install dir)s/ccache
+
+APTCACHE=%(install dir)s/%(label)s/cache/aptcache
+APTKEYRINGS=/etc/apt/trusted.gpg
+ARCHITECTURE=armhf
+BASETGZ=%(install dir)s/%(label)s/cache/base.tgz
+BUILDPLACE=%(install dir)s/%(label)s/cache/build/
+BUILDRESULT=%(install dir)s/%(label)s/cache/result/
+DEBOOTSTRAP=qemu-debootstrap
+DEBOOTSTRAPOPTS=('--arch' 'armhf' '--keyring=/etc/apt/trusted.gpg' '--keyring=/usr/share/keyrings/raspbian-archive-keyring.gpg')
+DISTRIBUTION=%(distribution)s
+EXTRAPACKAGES=""
+HOOKDIR=%(install dir)s/%(label)s/hooks
