@@ -16,7 +16,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-import commands, glob, os, subprocess, sys
+import commands, glob, os, subprocess, sys, tempfile
+from debian.changelog import Changelog
 from debian.deb822 import Changes, Dsc
 
 from autobuild.config import Config
@@ -140,15 +141,32 @@ if __name__ == "__main__":
             
             sys.exit()
     
-        elif command == "snapshot" and len(sys.argv) == 4:
+        elif command == "snapshot" and 3 <= len(sys.argv) <= 4:
         
             label = sys.argv[2]
-            snapshot_dir = sys.argv[3]
             
             # Check to see if the label already exists.
             check_label(config, label)
             
-            path = config.lines[label][0]
+            entry = config.lines[label]
+            path, method, debian_dir = entry[:3]
+            
+            # Read the changelog for the project in the repository.
+            changelog_path = os.path.join(path, debian_dir, "changelog")
+            
+            if not os.path.exists(changelog_path):
+                sys.stderr.write("No changelog found: %s/changelog.\n" % debian_dir)
+                sys.exit(1)
+            
+            ch = Changelog(open(changelog_path))
+            snapshot_name = ch.package + "-" + ch.upstream_version
+            snapshot_archive_name = ch.package + "_" + ch.upstream_version
+            
+            if len(sys.argv) == 4:
+                snapshot_dir = sys.argv[3]
+            else:
+                snapshot_parent_dir = tempfile.mkdtemp()
+                snapshot_dir = os.path.join(snapshot_parent_dir, snapshot_name)
             
             # Unpack the current sources from the repository in the path specified
             # to the snapshot directory by running the appropriate version control
@@ -204,13 +222,22 @@ if __name__ == "__main__":
                 result = -1
             
             if result == 0:
-                print "Repository '%s' updated successfully." % label
+                print "Repository '%s' updated successfully in %s." % (label, snapshot_dir)
             else:
                 sys.stderr.write("Failed to update repository '%s'.\n" % label)
                 sys.exit(1)
             
+            # Create an archive of the snapshot.
+            os.chdir(snapshot_dir)
+            os.chdir(os.pardir)
+            snapshot_archive = snapshot_archive_name + ".orig.tar.gz"
+            result = os.system("tar zcf " + snapshot_archive + " " + snapshot_name)
+            if result != 0:
+                sys.stderr.write("Failed to create a snapshot archive for %s in %s.\n" % (label, snapshot_dir))
+                sys.exit(1)
+
             sys.exit()
-    
+
         elif command == "list" and len(sys.argv) == 2:
         
             labels = config.lines.keys()

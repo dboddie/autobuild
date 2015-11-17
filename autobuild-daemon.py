@@ -301,16 +301,6 @@ class Build(Base):
             processes.manager.remove_lockfile(path)
             raise web.notfound("Failed to create a snapshot")
         
-        # Create an archive of the snapshot.
-        os.chdir(snapshot_dir)
-        snapshot_archive = snapshot_archive_name + ".orig.tar.gz"
-        result = os.system("tar zcf " + snapshot_archive + " " + snapshot_name)
-        if result != 0:
-            # Remove the snapshot directory if a snapshot archive couldn't be created.
-            shutil.rmtree(snapshot_dir)
-            processes.manager.remove_lockfile(path)
-            raise web.notfound("Failed to create a snapshot archive")
-        
         # Remove existing output/status log files.
         stdout_path, stderr_path, result_path = processes.manager.output_paths(path)
         for p in stdout_path, stderr_path, result_path:
