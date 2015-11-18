@@ -210,6 +210,7 @@ if __name__ == "__main__":
                     os.remove(archive_path)
 
                     # Add information about the current git commit.
+                    os.chdir(subpath)
                     os.system("git show --format=format:'%H %ci' > " + \
                         os.path.join(snapshot_parent_dir, prefix, ".git_archival.txt"))
 
