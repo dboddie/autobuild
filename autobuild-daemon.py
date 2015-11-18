@@ -240,6 +240,7 @@ class Build(Base):
         chroot = q.get("chroot")
         repo = q.get("repo")
         build_type = q.get("build_type")
+        wait = q.get("wait")
         if not chroot or not repo:
             raise web.notfound()
         
@@ -250,9 +251,9 @@ class Build(Base):
         else:
             build_type = "default"
 
-        return self.build(chroot[0], repo[0], build_type)
+        return self.build(chroot[0], repo[0], build_type, wait)
 
-    def build(self, chroot, repo, build_type):
+    def build(self, chroot, repo, build_type, wait):
     
         global process_manager
         current_dir = os.path.abspath(os.curdir)
@@ -325,30 +326,44 @@ class Build(Base):
             except IOError:
                 pass
         
-        pid = os.fork()
-        if pid == 0:
-
-            # Child process (pid is 0)
+	if wait != ["true"]:
+        
+            pid = os.fork()
+            
+            if pid == 0:
+                # Child process (pid is 0)
+                result = os.system("autobuild-builder.py debuild " + \
+                                   commands.mkarg(chroot) + " " + \
+                                   commands.mkarg(build_type) + \
+                                   " 1>> " + commands.mkarg(stdout_path) + \
+                                   " 2>> " + commands.mkarg(stderr_path))
+                
+                open(result_path, "w").write(str(result))
+                
+                # Remove the lock file and delete the snapshot directory.
+                processes.manager.remove_lockfile(path)
+                shutil.rmtree(snapshot_dir)
+                sys.exit(result)
+            else:
+                # Parent process (pid is child pid)
+                processes.manager.update_process(path, pid)
+                os.chdir(current_dir)
+                t = web.template.Template(self.template)
+                return t(chroot, repo)
+        else:
             result = os.system("autobuild-builder.py debuild " + \
                                commands.mkarg(chroot) + " " + \
                                commands.mkarg(build_type) + \
                                " 1>> " + commands.mkarg(stdout_path) + \
                                " 2>> " + commands.mkarg(stderr_path))
-
+            
             open(result_path, "w").write(str(result))
-
+            
             # Remove the lock file and delete the snapshot directory.
             processes.manager.remove_lockfile(path)
             shutil.rmtree(snapshot_dir)
-            sys.exit(result)
-        else:
-            # Parent process (pid is child pid)
-            processes.manager.update_process(path, pid)
-
-        os.chdir(current_dir)
-
-        t = web.template.Template(self.template)
-        return t(chroot, repo)
+            os.chdir(current_dir)
+            return str(result)
 
 class Products(Base):
 
