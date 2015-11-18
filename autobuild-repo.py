@@ -211,7 +211,7 @@ if __name__ == "__main__":
 
                     # Add information about the current git commit.
                     os.chdir(subpath)
-                    os.system("git show --format=format:'%H %ci' > " + \
+                    os.system("git show --format=format:'%H %ci' | head -n 1 > " + \
                         os.path.join(snapshot_parent_dir, prefix, ".git_archival.txt"))
 
             elif os.path.exists(os.path.join(path, ".svn")):
