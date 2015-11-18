@@ -209,6 +209,10 @@ if __name__ == "__main__":
                     # Remove the archive.
                     os.remove(archive_path)
 
+                    # Add information about the current git commit.
+                    os.system("git show --format=format:'%H %ci' > " + \
+                        os.path.join(snapshot_parent_dir, prefix, ".git_archival.txt"))
+
             elif os.path.exists(os.path.join(path, ".svn")):
                 # Export the latest revision into the snapshot directory,
                 # which will be created by svn.
