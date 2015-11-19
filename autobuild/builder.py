@@ -349,6 +349,8 @@ class Builder:
         # Find the .dsc and .changes files for the named package.
         if version is not None:
             pattern = name + "_" + version + "*"
+        else:
+            pattern = name + "_*"
 
         names = glob.glob(os.path.join(products_dir, pattern + ".changes"))
         if len(names) != 1:
