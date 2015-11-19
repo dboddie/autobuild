@@ -385,7 +385,7 @@ class Builder:
         products_dir = os.path.join(install_dir, label, "cache", "result")
 
         # Delete the files associated with this package.
-        for file_name in _files(label, name):
+        for file_name in self._files(label, name):
             remove_file(os.path.join(products_dir, file_name), sudo = False)
 
     def files(self, label, name):
@@ -396,5 +396,5 @@ class Builder:
         products_dir = os.path.join(install_dir, label, "cache", "result")
         
         # Print a list of the files associated with this package.
-        for file_name in _files(label, name):
+        for file_name in self._files(label, name):
             print os.path.join(products_dir, file_name)
