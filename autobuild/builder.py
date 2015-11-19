@@ -339,7 +339,7 @@ class Builder:
 
         return result
     
-    def remove(self, label, name):
+    def _files(self, label, name):
     
         # Check to see if the chroot already exists.
         self.config.check_label(label)
@@ -375,7 +375,26 @@ class Builder:
                 except KeyError:
                     pass
         
+        return files
+    
+    def remove(self, label, name):
+    
+        # Check to see if the chroot already exists.
+        self.config.check_label(label)
+        install_dir = self.config.lines[label][1]
+        products_dir = os.path.join(install_dir, label, "cache", "result")
+
         # Delete the files associated with this package.
-        for file_name in files:
+        for file_name in _files(label, name):
             remove_file(os.path.join(products_dir, file_name), sudo = False)
 
+    def files(self, label, name):
+    
+        # Check to see if the chroot already exists.
+        self.config.check_label(label)
+        install_dir = self.config.lines[label][1]
+        products_dir = os.path.join(install_dir, label, "cache", "result")
+        
+        # Print a list of the files associated with this package.
+        for file_name in _files(label, name):
+            print os.path.join(products_dir, file_name)
