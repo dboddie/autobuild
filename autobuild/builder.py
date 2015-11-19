@@ -339,7 +339,7 @@ class Builder:
 
         return result
     
-    def _files(self, label, name):
+    def _files(self, label, name, version = None):
     
         # Check to see if the chroot already exists.
         self.config.check_label(label)
@@ -347,13 +347,16 @@ class Builder:
         products_dir = os.path.join(install_dir, label, "cache", "result")
         
         # Find the .dsc and .changes files for the named package.
-        names = glob.glob(os.path.join(products_dir, name + "*.changes"))
+        if version is not None:
+            pattern = name + "_" + version + "*"
+
+        names = glob.glob(os.path.join(products_dir, pattern + ".changes"))
         if len(names) != 1:
             raise AutobuildError, "Unable to find a unique match for '%s'." % name
         
         changes_path = names[0]
         
-        names = glob.glob(os.path.join(products_dir, name + "*.dsc"))
+        names = glob.glob(os.path.join(products_dir, pattern + ".dsc"))
         if len(names) != 1:
             raise AutobuildError, "Unable to find a unique match for '%s'." % name
         
@@ -377,7 +380,7 @@ class Builder:
         
         return files
     
-    def remove(self, label, name):
+    def remove(self, label, name, version = None):
     
         # Check to see if the chroot already exists.
         self.config.check_label(label)
@@ -385,10 +388,10 @@ class Builder:
         products_dir = os.path.join(install_dir, label, "cache", "result")
 
         # Delete the files associated with this package.
-        for file_name in self._files(label, name):
+        for file_name in self._files(label, name, version):
             remove_file(os.path.join(products_dir, file_name), sudo = False)
 
-    def files(self, label, name):
+    def files(self, label, name, version = None):
     
         # Check to see if the chroot already exists.
         self.config.check_label(label)
@@ -396,5 +399,5 @@ class Builder:
         products_dir = os.path.join(install_dir, label, "cache", "result")
         
         # Print a list of the files associated with this package.
-        for file_name in self._files(label, name):
+        for file_name in self._files(label, name, version):
             print os.path.join(products_dir, file_name)
