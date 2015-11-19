@@ -376,7 +376,7 @@ class Builder:
             for desc in changes, dsc:
                 try:
                     for entry in desc[section]:
-                        files.add(entry["name"])
+                        files.add(os.path.join(products_dir, entry["name"]))
                 except KeyError:
                     pass
         
@@ -391,7 +391,7 @@ class Builder:
 
         # Delete the files associated with this package.
         for file_name in self._files(label, name, version):
-            remove_file(os.path.join(products_dir, file_name), sudo = False)
+            remove_file(file_name, sudo = False)
 
     def files(self, label, name, version = None):
     
@@ -402,4 +402,4 @@ class Builder:
         
         # Print a list of the files associated with this package.
         for file_name in self._files(label, name, version):
-            print os.path.join(products_dir, file_name)
+            print file_name
