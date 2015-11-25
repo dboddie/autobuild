@@ -326,7 +326,7 @@ class Build(Base):
             except IOError:
                 pass
         
-	    if wait != ["true"]:
+        if wait != ["true"]:
         
             pid = os.fork()
             
