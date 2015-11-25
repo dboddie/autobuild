@@ -307,7 +307,7 @@ class Build(Base):
         for p in stdout_path, stderr_path, result_path:
             if os.path.exists(p):
                 os.remove(p)
-            
+        
         # Enter the snapshot directory.
         os.chdir(snapshot_subdir)
         
@@ -326,7 +326,7 @@ class Build(Base):
             except IOError:
                 pass
         
-	if wait != ["true"]:
+	    if wait != ["true"]:
         
             pid = os.fork()
             
